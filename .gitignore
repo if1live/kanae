@@ -17,5 +17,6 @@
 # build output
 kanae
 
-# goautoenv
+# local dev
 .goenv
+config.yaml

@@ -1,0 +1,17 @@
+sudo: false
+
+language: go
+
+go:
+  - 1.8
+  - tip
+
+install:
+  - go get -t -v ./...
+
+script:
+  - go test -v ./...
+  - go build -v
+
+notifications:
+  email: false
