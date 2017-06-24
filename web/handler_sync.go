@@ -11,6 +11,7 @@ func handlerSync(w http.ResponseWriter, r *http.Request, sync histories.Synchron
 	rowcount, err := sync.SyncRecent()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	type Response struct {
@@ -30,6 +31,7 @@ func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {
 	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 
@@ -42,6 +44,7 @@ func handlerSyncTrade(w http.ResponseWriter, r *http.Request) {
 	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 
@@ -54,6 +57,7 @@ func handlerSyncLending(w http.ResponseWriter, r *http.Request) {
 	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 

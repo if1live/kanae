@@ -13,6 +13,7 @@ func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 
@@ -35,6 +36,7 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 
