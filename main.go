@@ -22,9 +22,25 @@ func main() {
 		check(err)
 	}
 
-	// get all
-	rows := db.GetAllTrades("DOGE", "BTC")
+	// get lending history
+	rowcount, err := db.LoadFromLending()
+	if err != nil {
+		check(err)
+	}
+	fmt.Println(rowcount)
+
+	rows := db.GetLendings("BTC")
 	fmt.Println(rows)
+
+	/*
+		exchange := s.PoloniexExchange()
+		db, err := histories.NewDatabase("histories.db", exchange)
+
+
+		// get all
+		rows := db.GetAllTrades("DOGE", "BTC")
+		fmt.Println(rows)
+	*/
 
 	//if len(rows) == 0 {
 	//rowcount, err := db.LoadFromExchange("all")

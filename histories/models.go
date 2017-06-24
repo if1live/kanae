@@ -7,6 +7,12 @@ import (
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
+func convertPoloniexDate(val string) time.Time {
+	// date example : 2017-06-18 04:31:08
+	t, _ := time.Parse("2006-01-02 15:04:05", val)
+	return t
+}
+
 // PoloniexAuthenticatedTradeHistory
 type PoloniexTradeRow struct {
 	gorm.Model
@@ -30,16 +36,13 @@ type PoloniexTradeRow struct {
 }
 
 func NewPoloniexTradeRow(asset, currency string, h poloniex.PoloniexAuthentictedTradeHistory) PoloniexTradeRow {
-	// date example : 2017-06-18 04:31:08
-	t, _ := time.Parse("2006-01-02 15:04:05", h.Date)
-
 	return PoloniexTradeRow{
 		Asset:    asset,
 		Currency: currency,
 
 		GlobalTradeID: h.GlobalTradeID,
 		TradeID:       h.TradeID,
-		Date:          t,
+		Date:          convertPoloniexDate(h.Date),
 		Rate:          h.Rate,
 		Amount:        h.Amount,
 		Total:         h.Total,
@@ -50,5 +53,32 @@ func NewPoloniexTradeRow(asset, currency string, h poloniex.PoloniexAuthenticted
 	}
 }
 
-type LendRow struct {
+type PoloniexLendingRow struct {
+	gorm.Model
+
+	LendingID int64 `gorm:"unique"`
+	Currency  string
+	Rate      float64
+	Amount    float64
+	Duration  float64
+	Interest  float64
+	Fee       float64
+	Earned    float64
+	Open      time.Time
+	Close     time.Time
+}
+
+func NewPoloniexLendingRow(h PoloniexLendingHistory) PoloniexLendingRow {
+	return PoloniexLendingRow{
+		LendingID: h.ID,
+		Currency:  h.Currency,
+		Rate:      h.Rate,
+		Amount:    h.Amount,
+		Duration:  h.Duration,
+		Interest:  h.Interest,
+		Fee:       h.Fee,
+		Earned:    h.Earned,
+		Open:      convertPoloniexDate(h.Open),
+		Close:     convertPoloniexDate(h.Close),
+	}
 }

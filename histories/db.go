@@ -27,6 +27,7 @@ func NewDatabase(filepath string, exchange *poloniex.Poloniex) (Database, error)
 	}
 
 	db.AutoMigrate(&PoloniexTradeRow{})
+	db.AutoMigrate(&PoloniexLendingRow{})
 
 	return Database{
 		db:       db,
@@ -36,7 +37,7 @@ func NewDatabase(filepath string, exchange *poloniex.Poloniex) (Database, error)
 
 func (d *Database) GetAllTrades(asset, currency string) []PoloniexTradeRow {
 	var rows []PoloniexTradeRow
-	d.db.Where(&PoloniexTradeRow{Asset: asset, Currency: currency}).Order("Date desc").Find(&rows)
+	d.db.Where(&PoloniexTradeRow{Asset: asset, Currency: currency}).Order("date desc").Find(&rows)
 	return rows
 }
 
@@ -72,7 +73,7 @@ func (d *Database) LoadFromExchange(currency string) (int, error) {
 
 func (d *Database) insertTradeHistories(asset, currency string, histories []poloniex.PoloniexAuthentictedTradeHistory) int {
 	var existRows []PoloniexTradeRow
-	d.db.Where(&PoloniexTradeRow{Asset: asset, Currency: currency}).Select("TradeID").Find(&existRows)
+	d.db.Where(&PoloniexTradeRow{Asset: asset, Currency: currency}).Select("trade_id").Find(&existRows)
 	tradeIDSet := mapset.NewSet()
 	for _, r := range existRows {
 		tradeIDSet.Add(r.TradeID)
@@ -91,4 +92,39 @@ func (d *Database) insertTradeHistories(asset, currency string, histories []polo
 		d.db.Create(&row)
 	}
 	return len(rows)
+}
+
+func (d *Database) GetLendings(currency string) []PoloniexLendingRow {
+	var rows []PoloniexLendingRow
+	d.db.Where(&PoloniexLendingRow{Currency: currency}).Order("close desc").Find(&rows)
+	return rows
+}
+
+func (d *Database) LoadFromLending() (int, error) {
+	start := "0"
+	end := strconv.FormatInt(time.Now().Unix(), 10)
+	retval, err := GetLendingHistory(d.exchange, start, end)
+	if err != nil {
+		return -1, err
+	}
+
+	var existRows []PoloniexLendingRow
+	d.db.Select("lending_id").Find(&existRows)
+	idSet := mapset.NewSet()
+	for _, r := range existRows {
+		idSet.Add(r.LendingID)
+	}
+
+	rows := []PoloniexLendingRow{}
+	for _, history := range retval {
+		if idSet.Contains(history.ID) {
+			continue
+		}
+		row := NewPoloniexLendingRow(history)
+		rows = append(rows, row)
+	}
+	for _, row := range rows {
+		d.db.Create(&row)
+	}
+	return len(rows), nil
 }
