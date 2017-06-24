@@ -20,3 +20,4 @@ kanae
 # local dev
 .goenv
 config.yaml
+*.db

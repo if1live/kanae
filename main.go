@@ -1,35 +1,36 @@
 package main
 
 import (
-	"io/ioutil"
+	"fmt"
 	"path"
 
-	yaml "gopkg.in/yaml.v2"
+	"github.com/if1live/kanae/histories"
+	"github.com/if1live/kanae/kanaelib"
 )
-
-func loadConfig(filepath string) (Settings, error) {
-	data, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return Settings{}, err
-	}
-
-	var s Settings
-	err = yaml.Unmarshal(data, &s)
-	if err != nil {
-		return Settings{}, err
-	}
-
-	return s, nil
-}
 
 func main() {
 	filename := "config.yaml"
 	filepath := path.Join(GetExecutablePath(), filename)
-	s, err := loadConfig(filepath)
+	s, err := kanaelib.LoadSettings(filepath)
 	if err != nil {
 		check(err)
 	}
 
-	report := NewPoloniexReport(s)
-	report.Generate()
+	exchange := s.PoloniexExchange()
+	db, err := histories.NewDatabase("histories.db", exchange)
+	if err != nil {
+		check(err)
+	}
+
+	// get all
+	rows := db.GetAllTrades("DOGE", "BTC")
+	fmt.Println(rows)
+
+	//if len(rows) == 0 {
+	//rowcount, err := db.LoadFromExchange("all")
+	//if err != nil {
+	//	check(err)
+	//}
+	//fmt.Printf("%d row added\n", rowcount)
+	//}
 }
