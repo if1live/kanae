@@ -42,7 +42,7 @@ func (d *Database) MakeBalanceSync(api *poloniex.Poloniex) *BalanceSync {
 
 func (d *Database) GetAllTrades(asset, currency string) []TradeRow {
 	var rows []TradeRow
-	d.db.Where(&TradeRow{Asset: asset, Currency: currency}).Order("date desc").Find(&rows)
+	d.db.Where("asset = ? and currency = ?", asset, currency).Order("date desc").Find(&rows)
 	return rows
 }
 

@@ -35,3 +35,18 @@ func NewLendingRow(h PoloniexLendingHistory) LendingRow {
 		Close:     convertPoloniexDate(h.Close),
 	}
 }
+
+func (r *LendingRow) MakeHistory() PoloniexLendingHistory {
+	return PoloniexLendingHistory{
+		ID:       r.LendingID,
+		Currency: r.Currency,
+		Rate:     r.Rate,
+		Amount:   r.Amount,
+		Duration: r.Duration,
+		Interest: r.Interest,
+		Fee:      r.Fee,
+		Earned:   r.Earned,
+		Open:     r.Open.Format(time.RFC3339),
+		Close:    r.Close.Format(time.RFC3339),
+	}
+}

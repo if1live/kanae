@@ -46,3 +46,18 @@ func NewTradeRow(asset, currency string, h poloniex.PoloniexAuthentictedTradeHis
 		Category:      h.Category,
 	}
 }
+
+func (r *TradeRow) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
+	return poloniex.PoloniexAuthentictedTradeHistory{
+		GlobalTradeID: r.GlobalTradeID,
+		TradeID:       r.TradeID,
+		Date:          r.Date.Format(time.RFC3339),
+		Rate:          r.Rate,
+		Amount:        r.Amount,
+		Total:         r.Total,
+		Fee:           r.Fee,
+		OrderNumber:   r.OrderNumber,
+		Type:          r.Type,
+		Category:      r.Category,
+	}
+}

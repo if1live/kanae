@@ -43,7 +43,8 @@ func (s *Server) Run() {
 	http.HandleFunc("/sync/trade", handlerSyncTrade)
 	http.HandleFunc("/sync/lending", handlerSyncLending)
 
-	http.HandleFunc("/histories/lending", handlerLendingHistories)
+	http.HandleFunc("/histories/lending/", handlerLendingHistories)
+	http.HandleFunc("/histories/trade/", handlerTradeHistories)
 
 	addr := s.addr + ":" + strconv.Itoa(s.port)
 	fmt.Println("run server on", addr)
