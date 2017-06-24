@@ -8,6 +8,7 @@ import (
 
 	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
+	"github.com/if1live/kanae/reports"
 )
 
 type Server struct {
@@ -50,16 +51,32 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		LastBalanceSyncTime time.Time
 
 		LendingHistories []histories.LendingRow
+
+		TradeUsedAssets []string
+		TradeReports    []reports.TradeReport
 	}
 
 	tradeSync := db.MakeTradeSync(nil)
 	lendingSync := db.MakeLendingSync(nil)
 	balanceSync := db.MakeBalanceSync(nil)
 
+	tradeView := db.MakeTradeView()
+
+	tradeReports := []reports.TradeReport{}
+	usedAssets := tradeView.UsedAssets("BTC")
+	for _, asset := range usedAssets {
+		histories := tradeView.All(asset, "BTC")
+		report := reports.NewTradeReport(asset, "BTC", histories)
+		tradeReports = append(tradeReports, report)
+	}
+
 	ctx := Context{
 		LastTradeSyncTime:   tradeSync.GetLastTime(),
 		LastLendingSyncTime: lendingSync.GetLastTime(),
 		LastBalanceSyncTime: balanceSync.GetLastTime(),
+
+		TradeReports:    tradeReports,
+		TradeUsedAssets: usedAssets,
 	}
 	renderTemplate(w, "index.html", ctx)
 }

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 
+	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
 )
 
@@ -17,7 +18,15 @@ func NewDev(s kanaelib.Settings) *Dev {
 }
 
 func (cmd *Dev) Execute() error {
-	fmt.Println("TODO: Dev")
+	db, err := histories.NewDatabase(cmd.settings.DatabaseFileName)
+	if err != nil {
+		return nil
+	}
+
+	view := db.MakeTradeView()
+	assets := view.UsedAssets("BTC")
+	fmt.Println(assets)
+
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)
 
@@ -27,7 +36,7 @@ func (cmd *Dev) Execute() error {
 
 
 		// get all
-		rows := db.GetAllTrades("DOGE", "BTC")
+		rows := db.AllTrades("DOGE", "BTC")
 		fmt.Println(rows)
 	*/
 

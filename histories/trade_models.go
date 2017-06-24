@@ -3,6 +3,7 @@ package histories
 import (
 	"time"
 
+	"github.com/if1live/kanae/kanaelib"
 	"github.com/jinzhu/gorm"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
@@ -60,4 +61,17 @@ func (r *TradeRow) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
 		Type:          r.Type,
 		Category:      r.Category,
 	}
+}
+
+func (r *TradeRow) FeeAmount() float64 {
+	fee := r.Amount * r.Fee
+	return fee
+}
+func (r *TradeRow) FixedFeeAmount() float64 {
+	return kanaelib.ToFixed(r.FeeAmount(), 8)
+}
+
+func (r *TradeRow) MyAmount() float64 {
+	myamount := r.Amount - r.FeeAmount()
+	return myamount
 }
