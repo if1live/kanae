@@ -32,12 +32,25 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	return svr
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
+func handlerIndex(w http.ResponseWriter, r *http.Request) {
+	//fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
+	type Context struct {
+		Name string
+	}
+	ctx := Context{
+		Name: "todo",
+	}
+	renderTemplate(w, "index.html", ctx)
+}
+
+func handlerStatic(w http.ResponseWriter, r *http.Request) {
+	targetPath := r.URL.Path[len("/static/"):]
+	renderStatic(w, r, targetPath)
 }
 
 func (s *Server) Run() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", handlerIndex)
+	http.HandleFunc("/static/", handlerStatic)
 
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
 	http.HandleFunc("/sync/trade", handlerSyncTrade)
