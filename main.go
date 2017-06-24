@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path"
 
+	"reflect"
+
 	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
 )
@@ -16,31 +18,28 @@ func main() {
 		check(err)
 	}
 
-	exchange := s.PoloniexExchange()
-	db, err := histories.NewDatabase("histories.db", exchange)
+	db, err := histories.NewDatabase("data.db")
 	if err != nil {
 		check(err)
 	}
 	defer db.Close()
 
 	// sync all history
-	exchangeCount, err := db.SyncRecentExchange()
-	if err != nil {
-		check(err)
+	exchange := s.PoloniexExchange()
+	syncs := []histories.Synchronizer{
+		db.MakeTradeSync(exchange),
+		db.MakeLendingSync(exchange),
+		db.MakeBalanceSync(exchange),
 	}
-	fmt.Println(exchangeCount, "exchange rows added")
+	for _, sync := range syncs {
+		rowcount, err := sync.SyncRecent()
+		if err != nil {
+			check(err)
+		}
 
-	lendingCount, err := db.SyncRecentLending()
-	if err != nil {
-		check(err)
+		syncName := reflect.TypeOf(sync).String()
+		fmt.Printf("%s : %d exchange rows added\n", syncName, rowcount)
 	}
-	fmt.Println(lendingCount, "lending rows added")
-
-	depositWithdrawCount, err := db.SyncRecentDepositWithdraw()
-	if err != nil {
-		check(err)
-	}
-	fmt.Println(depositWithdrawCount, "deposit/withdraw rows added")
 
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)
