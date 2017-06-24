@@ -29,7 +29,7 @@ func LoadSettings(filepath string) (Settings, error) {
 	return s, nil
 }
 
-func (s *Settings) PoloniexExchange() *poloniex.Poloniex {
+func (s *Settings) MakePoloniex() *poloniex.Poloniex {
 	conf := config.ExchangeConfig{
 		Enabled:                 true,
 		APIKey:                  s.APIKey,
