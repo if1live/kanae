@@ -40,10 +40,10 @@ func (d *Database) MakeBalanceSync(api *poloniex.Poloniex) *BalanceSync {
 	return NewBalanceSync(d.db, api)
 }
 
-func (d *Database) MakeTradeQuery() *TradeQuery {
-	return NewTradeQuery(d.db)
+func (d *Database) MakeTradeView() *TradeView {
+	return NewTradeView(d.db)
 }
 
-func (d *Database) MakeLendingQuery() *LendingQuery {
-	return NewLendingQuery(d.db)
+func (d *Database) MakeLendingView() *LendingView {
+	return NewLendingView(d.db)
 }

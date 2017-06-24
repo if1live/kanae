@@ -4,17 +4,17 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type LendingQuery struct {
+type LendingView struct {
 	db *gorm.DB
 }
 
-func NewLendingQuery(db *gorm.DB) *LendingQuery {
-	return &LendingQuery{
+func NewLendingView(db *gorm.DB) *LendingView {
+	return &LendingView{
 		db: db,
 	}
 }
 
-func (q *LendingQuery) GetAll(currency string) []LendingRow {
+func (q *LendingView) GetAll(currency string) []LendingRow {
 	var rows []LendingRow
 	q.db.Where(&LendingRow{Currency: currency}).Order("close desc").Find(&rows)
 	return rows

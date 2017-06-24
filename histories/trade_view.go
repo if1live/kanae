@@ -2,17 +2,17 @@ package histories
 
 import "github.com/jinzhu/gorm"
 
-type TradeQuery struct {
+type TradeView struct {
 	db *gorm.DB
 }
 
-func NewTradeQuery(db *gorm.DB) *TradeQuery {
-	return &TradeQuery{
+func NewTradeView(db *gorm.DB) *TradeView {
+	return &TradeView{
 		db: db,
 	}
 }
 
-func (q *TradeQuery) GetAll(asset, currency string) []TradeRow {
+func (q *TradeView) GetAll(asset, currency string) []TradeRow {
 	var rows []TradeRow
 	q.db.Where("asset = ? and currency = ?", asset, currency).Order("date desc").Find(&rows)
 	return rows
