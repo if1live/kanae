@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -24,12 +23,7 @@ func handlerSync(w http.ResponseWriter, r *http.Request, sync histories.Synchron
 		UpdatedAt: time.Now(),
 		LastTime:  sync.GetLastTime(),
 	}
-	data, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	renderJSON(w, resp)
 }
 
 func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {

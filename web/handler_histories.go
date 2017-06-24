@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"strings"
@@ -29,13 +28,7 @@ func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 	resp := Response{
 		Histories: histories,
 	}
-
-	data, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	renderJSON(w, resp)
 }
 
 func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
@@ -60,11 +53,5 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 		Histories: histories,
 		Asset:     asset,
 	}
-
-	data, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	renderJSON(w, resp)
 }
