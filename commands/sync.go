@@ -18,7 +18,7 @@ func NewSync(s kanaelib.Settings) *Sync {
 	}
 }
 func (cmd *Sync) Execute() error {
-	db, err := histories.NewDatabase("data.db")
+	db, err := histories.NewDatabase(cmd.settings.DatabaseFileName)
 	if err != nil {
 		return err
 	}

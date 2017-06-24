@@ -12,6 +12,8 @@ import (
 type Settings struct {
 	APIKey    string `yaml:"poloniex_api_key"`
 	APISecret string `yaml:"poloniex_api_secret"`
+
+	DatabaseFileName string `yaml:"database_filename"`
 }
 
 func LoadSettings(filepath string) (Settings, error) {

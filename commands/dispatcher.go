@@ -12,8 +12,14 @@ import (
 
 var command string
 
+// for server
+var port int
+var host string
+
 func init() {
 	flag.StringVar(&command, "command", "", "command, use help command to see detail")
+	flag.IntVar(&port, "port", 8000, "port to use")
+	flag.StringVar(&host, "host", "127.0.0.1", "address to use")
 }
 
 type Dispatcher struct {
