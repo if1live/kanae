@@ -28,6 +28,7 @@ func NewDatabase(filepath string, exchange *poloniex.Poloniex) (Database, error)
 
 	db.AutoMigrate(&PoloniexTradeRow{})
 	db.AutoMigrate(&PoloniexLendingRow{})
+	db.AutoMigrate(&PoloniexDepositWithdrawRow{})
 
 	return Database{
 		db:       db,
@@ -173,4 +174,53 @@ func (d *Database) GetLastLendingTime() time.Time {
 		return time.Unix(0, 0)
 	}
 	return last.Open
+}
+
+func (d *Database) SyncDepositWithdraw(start, end time.Time) (int, error) {
+	startTime := strconv.FormatInt(start.Unix(), 10)
+	endTime := strconv.FormatInt(end.Unix(), 10)
+	retval, err := d.exchange.GetDepositsWithdrawals(startTime, endTime)
+	if err != nil {
+		return -1, err
+	}
+
+	var existRows []PoloniexDepositWithdrawRow
+	d.db.Select("transaction_id").Find(&existRows)
+	idSet := mapset.NewSet()
+	for _, r := range existRows {
+		idSet.Add(r.TransactionID)
+	}
+
+	rows := []PoloniexDepositWithdrawRow{}
+	retvals := NewPoloniexDepositWithdrawRows(retval)
+	for _, history := range retvals {
+		if idSet.Contains(history.TransactionID) {
+			continue
+		}
+		rows = append(rows, history)
+	}
+	for _, row := range rows {
+		d.db.Create(&row)
+	}
+	return len(rows), nil
+}
+
+func (d *Database) SyncAllDepositWithdraw() (int, error) {
+	start := time.Unix(0, 0)
+	end := time.Now()
+	return d.SyncDepositWithdraw(start, end)
+}
+
+func (d *Database) SyncRecentDepositWithdraw() (int, error) {
+	start := d.GetLastSyncDepositWithdrawTime()
+	end := time.Now()
+	return d.SyncDepositWithdraw(start, end)
+}
+func (d *Database) GetLastSyncDepositWithdrawTime() time.Time {
+	var last PoloniexDepositWithdrawRow
+	d.db.Order("timestamp desc").First(&last)
+	if last.ID == 0 {
+		return time.Unix(0, 0)
+	}
+	return last.Timestamp
 }

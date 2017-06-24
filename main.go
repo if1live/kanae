@@ -23,12 +23,24 @@ func main() {
 	}
 	defer db.Close()
 
-	// get lending history
-	rowcount, err := db.SyncRecentLending()
+	// sync all history
+	exchangeCount, err := db.SyncRecentExchange()
 	if err != nil {
 		check(err)
 	}
-	fmt.Println(rowcount)
+	fmt.Println(exchangeCount, "exchange rows added")
+
+	lendingCount, err := db.SyncRecentLending()
+	if err != nil {
+		check(err)
+	}
+	fmt.Println(lendingCount, "lending rows added")
+
+	depositWithdrawCount, err := db.SyncRecentDepositWithdraw()
+	if err != nil {
+		check(err)
+	}
+	fmt.Println(depositWithdrawCount, "deposit/withdraw rows added")
 
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)

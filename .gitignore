@@ -20,4 +20,7 @@ kanae
 # local dev
 .goenv
 config.yaml
+
+# sqlite3 database
 *.db
+*.db-journal

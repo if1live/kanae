@@ -7,6 +7,11 @@ import (
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
+const (
+	RecordTypeDeposit     = "deposit"
+	RecordTypeWithdrawals = "withdrawals"
+)
+
 func convertPoloniexDate(val string) time.Time {
 	// date example : 2017-06-18 04:31:08
 	t, _ := time.Parse("2006-01-02 15:04:05", val)
@@ -81,4 +86,63 @@ func NewPoloniexLendingRow(h PoloniexLendingHistory) PoloniexLendingRow {
 		Open:      convertPoloniexDate(h.Open),
 		Close:     convertPoloniexDate(h.Close),
 	}
+}
+
+// merge two struct
+// - poloniex.PoloniexDepositsWithdrawals.Deposits
+// - poloniex.PoloniexDepositsWithdrawals.Withdrawals
+type PoloniexDepositWithdrawRow struct {
+	gorm.Model
+
+	// deposit / withdrawal
+	Type string
+
+	WithdrawalNumber int64 // only withdrawals
+	Currency         string
+	Address          string
+	Amount           float64
+	Confirmations    int
+	TransactionID    string `gorm:"unique"`
+	Timestamp        time.Time
+	Status           string
+	IPAddress        string // only withdrawals
+}
+
+func NewPoloniexDepositWithdrawRows(h poloniex.PoloniexDepositsWithdrawals) []PoloniexDepositWithdrawRow {
+	deposits := []PoloniexDepositWithdrawRow{}
+	for _, row := range h.Deposits {
+		r := PoloniexDepositWithdrawRow{
+			Type:          RecordTypeDeposit,
+			Currency:      row.Currency,
+			Address:       row.Address,
+			Amount:        row.Amount,
+			Confirmations: row.Confirmations,
+			TransactionID: row.TransactionID,
+			Timestamp:     time.Unix(row.Timestamp, 0),
+			Status:        row.Status,
+		}
+		deposits = append(deposits, r)
+	}
+
+	withdrawals := []PoloniexDepositWithdrawRow{}
+	for _, row := range h.Withdrawals {
+		r := PoloniexDepositWithdrawRow{
+			Type:             RecordTypeWithdrawals,
+			WithdrawalNumber: row.WithdrawalNumber,
+			Currency:         row.Currency,
+			Address:          row.Address,
+			Amount:           row.Amount,
+			Confirmations:    row.Confirmations,
+			TransactionID:    row.TransactionID,
+			Timestamp:        time.Unix(row.Timestamp, 0),
+			Status:           row.Status,
+			IPAddress:        row.IPAddress,
+		}
+		withdrawals = append(withdrawals, r)
+	}
+
+	rows := []PoloniexDepositWithdrawRow{}
+	rows = append(rows, deposits...)
+	rows = append(rows, withdrawals...)
+	return rows
 }
