@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
 )
 
@@ -18,11 +20,19 @@ type Server struct {
 // use singleton
 // only one web server exist
 var svr *Server
+var db *histories.Database
 
 func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	if svr != nil {
 		panic("already server exists!")
 	}
+
+	// share single orm
+	dbobj, err := histories.NewDatabase(s.DatabaseFileName)
+	if err != nil {
+		panic(err)
+	}
+	db = &dbobj
 
 	svr = &Server{
 		addr:     addr,
@@ -35,10 +45,21 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
 	type Context struct {
-		Name string
+		LastTradeSyncTime   time.Time
+		LastLendingSyncTime time.Time
+		LastBalanceSyncTime time.Time
+
+		LendingHistories []histories.LendingRow
 	}
+
+	tradeSync := db.MakeTradeSync(nil)
+	lendingSync := db.MakeLendingSync(nil)
+	balanceSync := db.MakeBalanceSync(nil)
+
 	ctx := Context{
-		Name: "todo",
+		LastTradeSyncTime:   tradeSync.GetLastTime(),
+		LastLendingSyncTime: lendingSync.GetLastTime(),
+		LastBalanceSyncTime: balanceSync.GetLastTime(),
 	}
 	renderTemplate(w, "index.html", ctx)
 }
@@ -62,4 +83,8 @@ func (s *Server) Run() {
 	addr := s.addr + ":" + strconv.Itoa(s.port)
 	fmt.Println("run server on", addr)
 	http.ListenAndServe(addr, nil)
+}
+
+func (s *Server) Close() {
+	db.Close()
 }

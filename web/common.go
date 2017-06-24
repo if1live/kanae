@@ -6,13 +6,28 @@ import (
 	"net/http"
 	"path"
 
+	"errors"
+
 	"github.com/if1live/kanae/kanaelib"
 )
+
+func renderErrorJSON(w http.ResponseWriter, err error, errcode int) {
+	type Response struct {
+		Error string `json:"error"`
+	}
+	resp := Response{
+		Error: err.Error(),
+	}
+	data, _ := json.Marshal(resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(errcode)
+	w.Write(data)
+}
 
 func renderJSON(w http.ResponseWriter, v interface{}) {
 	data, err := json.Marshal(v)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -24,12 +39,12 @@ func renderTemplate(w http.ResponseWriter, tplfile string, ctx interface{}) {
 	fp := path.Join(basePath, "web", "templates", tplfile)
 	tpl, err := template.ParseFiles(fp)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err := tpl.Execute(w, ctx); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorJSON(w, err, http.StatusInternalServerError)
 	}
 }
 
@@ -39,4 +54,15 @@ func renderStatic(w http.ResponseWriter, r *http.Request, target string) {
 	fp := path.Join(basePath, "web", "static", cleaned)
 	cleanedFp := path.Clean(fp)
 	http.ServeFile(w, r, cleanedFp)
+}
+
+func checkPostRequest(w http.ResponseWriter, r *http.Request) bool {
+	type Response struct {
+		Error string `json:"error"`
+	}
+	if r.Method != "POST" {
+		renderErrorJSON(w, errors.New("only post allowed"), http.StatusBadRequest)
+		return false
+	}
+	return true
 }

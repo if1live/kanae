@@ -18,5 +18,6 @@ func NewServer(s kanaelib.Settings) *Server {
 func (cmd *Server) Execute() error {
 	s := web.NewServer(host, port, cmd.settings)
 	s.Run()
+	s.Close()
 	return nil
 }

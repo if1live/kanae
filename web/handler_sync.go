@@ -10,7 +10,7 @@ import (
 func handlerSync(w http.ResponseWriter, r *http.Request, sync histories.Synchronizer) {
 	rowcount, err := sync.SyncRecent()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		renderErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -28,12 +28,9 @@ func handlerSync(w http.ResponseWriter, r *http.Request, sync histories.Synchron
 }
 
 func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {
-	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if ok := checkPostRequest(w, r); !ok {
 		return
 	}
-	defer db.Close()
 
 	api := svr.settings.MakePoloniex()
 	sync := db.MakeBalanceSync(api)
@@ -41,12 +38,9 @@ func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerSyncTrade(w http.ResponseWriter, r *http.Request) {
-	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if ok := checkPostRequest(w, r); !ok {
 		return
 	}
-	defer db.Close()
 
 	api := svr.settings.MakePoloniex()
 	sync := db.MakeTradeSync(api)
@@ -54,12 +48,9 @@ func handlerSyncTrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerSyncLending(w http.ResponseWriter, r *http.Request) {
-	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if ok := checkPostRequest(w, r); !ok {
 		return
 	}
-	defer db.Close()
 
 	api := svr.settings.MakePoloniex()
 	sync := db.MakeLendingSync(api)

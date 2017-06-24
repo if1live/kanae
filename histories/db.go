@@ -40,14 +40,10 @@ func (d *Database) MakeBalanceSync(api *poloniex.Poloniex) *BalanceSync {
 	return NewBalanceSync(d.db, api)
 }
 
-func (d *Database) GetAllTrades(asset, currency string) []TradeRow {
-	var rows []TradeRow
-	d.db.Where("asset = ? and currency = ?", asset, currency).Order("date desc").Find(&rows)
-	return rows
+func (d *Database) MakeTradeQuery() *TradeQuery {
+	return NewTradeQuery(d.db)
 }
 
-func (d *Database) GetLendings(currency string) []LendingRow {
-	var rows []LendingRow
-	d.db.Where(&LendingRow{Currency: currency}).Order("close desc").Find(&rows)
-	return rows
+func (d *Database) MakeLendingQuery() *LendingQuery {
+	return NewLendingQuery(d.db)
 }

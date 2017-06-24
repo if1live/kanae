@@ -10,18 +10,12 @@ import (
 )
 
 func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
-	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
-
 	type Response struct {
 		Histories []histories.PoloniexLendingHistory `json:"histories"`
 	}
 
-	rows := db.GetLendings("BTC")
+	q := db.MakeLendingQuery()
+	rows := q.GetAll("BTC")
 	histories := []histories.PoloniexLendingHistory{}
 	for _, row := range rows {
 		histories = append(histories, row.MakeHistory())
@@ -33,20 +27,14 @@ func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
-	db, err := histories.NewDatabase(svr.settings.DatabaseFileName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
-
 	type Response struct {
 		Asset     string                                      `json:"asset"`
 		Histories []poloniex.PoloniexAuthentictedTradeHistory `json:"histories"`
 	}
 
 	asset := strings.ToUpper(r.URL.Path[len("/histories/trade/"):])
-	rows := db.GetAllTrades(asset, "BTC")
+	q := db.MakeTradeQuery()
+	rows := q.GetAll(asset, "BTC")
 	histories := []poloniex.PoloniexAuthentictedTradeHistory{}
 	for _, row := range rows {
 		histories = append(histories, row.MakeHistory())
