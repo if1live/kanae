@@ -24,7 +24,7 @@ type PoloniexTradeRow struct {
 	Currency string
 
 	GlobalTradeID int64 `gorm:"unique"`
-	TradeID       int64 `gorm:"unique"`
+	TradeID       int64
 	Date          time.Time
 	Rate          float64
 	Amount        float64

@@ -21,16 +21,17 @@ func main() {
 	if err != nil {
 		check(err)
 	}
+	defer db.Close()
 
 	// get lending history
-	rowcount, err := db.LoadFromLending()
+	rowcount, err := db.SyncRecentLending()
 	if err != nil {
 		check(err)
 	}
 	fmt.Println(rowcount)
 
-	rows := db.GetLendings("BTC")
-	fmt.Println(rows)
+	//rows := db.GetLendings("BTC")
+	//fmt.Println(rows)
 
 	/*
 		exchange := s.PoloniexExchange()

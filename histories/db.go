@@ -35,17 +35,22 @@ func NewDatabase(filepath string, exchange *poloniex.Poloniex) (Database, error)
 	}, nil
 }
 
+func (d *Database) Close() {
+	d.db.Close()
+}
+
 func (d *Database) GetAllTrades(asset, currency string) []PoloniexTradeRow {
 	var rows []PoloniexTradeRow
 	d.db.Where(&PoloniexTradeRow{Asset: asset, Currency: currency}).Order("date desc").Find(&rows)
 	return rows
 }
 
-// currency example : "all", "BTC_DOGE"
-func (d *Database) LoadFromExchange(currency string) (int, error) {
-	start := "0"
-	end := strconv.FormatInt(time.Now().Unix(), 10)
-	retval, err := d.exchange.GetAuthenticatedTradeHistory(currency, start, end)
+// currencyPair example : "all", "BTC_DOGE"
+func (d *Database) SyncExchange(currencyPair string, start, end time.Time) (int, error) {
+	startTime := strconv.FormatInt(start.Unix(), 10)
+	endTime := strconv.FormatInt(end.Unix(), 10)
+	retval, err := d.exchange.GetAuthenticatedTradeHistory(currencyPair, startTime, endTime)
+
 	if err != nil {
 		return -1, err
 	}
@@ -63,12 +68,33 @@ func (d *Database) LoadFromExchange(currency string) (int, error) {
 	}
 
 	if resp, ok := retval.(poloniex.PoloniexAuthenticatedTradeHistoryResponse); ok {
-		tokens := strings.Split(currency, "_")
+		tokens := strings.Split(currencyPair, "_")
 		rowcount := d.insertTradeHistories(tokens[1], tokens[0], resp.Data)
 		return rowcount, nil
 	}
 
 	return -1, errors.New("unknown error : load from exchange")
+}
+
+func (d *Database) SyncAllExchange(currencyPair string) (int, error) {
+	start := time.Unix(0, 0)
+	end := time.Now()
+	return d.SyncExchange(currencyPair, start, end)
+}
+
+func (d *Database) SyncRecentExchange() (int, error) {
+	start := d.GetLastExchangeTime()
+	end := time.Now()
+	return d.SyncExchange("all", start, end)
+}
+
+func (d *Database) GetLastExchangeTime() time.Time {
+	var last PoloniexTradeRow
+	d.db.Order("date desc").First(&last)
+	if last.ID == 0 {
+		return time.Unix(0, 0)
+	}
+	return last.Date
 }
 
 func (d *Database) insertTradeHistories(asset, currency string, histories []poloniex.PoloniexAuthentictedTradeHistory) int {
@@ -100,10 +126,10 @@ func (d *Database) GetLendings(currency string) []PoloniexLendingRow {
 	return rows
 }
 
-func (d *Database) LoadFromLending() (int, error) {
-	start := "0"
-	end := strconv.FormatInt(time.Now().Unix(), 10)
-	retval, err := GetLendingHistory(d.exchange, start, end)
+func (d *Database) SyncLending(start, end time.Time) (int, error) {
+	startTime := strconv.FormatInt(start.Unix(), 10)
+	endTime := strconv.FormatInt(end.Unix(), 10)
+	retval, err := GetLendingHistory(d.exchange, startTime, endTime)
 	if err != nil {
 		return -1, err
 	}
@@ -127,4 +153,24 @@ func (d *Database) LoadFromLending() (int, error) {
 		d.db.Create(&row)
 	}
 	return len(rows), nil
+}
+
+func (d *Database) SyncAllLending() (int, error) {
+	start := time.Unix(0, 0)
+	end := time.Now()
+	return d.SyncLending(start, end)
+}
+
+func (d *Database) SyncRecentLending() (int, error) {
+	start := d.GetLastLendingTime()
+	end := time.Now()
+	return d.SyncLending(start, end)
+}
+func (d *Database) GetLastLendingTime() time.Time {
+	var last PoloniexLendingRow
+	d.db.Order("open desc").First(&last)
+	if last.ID == 0 {
+		return time.Unix(0, 0)
+	}
+	return last.Open
 }
