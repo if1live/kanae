@@ -34,20 +34,24 @@
   <dd>{{ .Ticker.Low24Hr|floatstr }}</dd>
 </dl>
 
+
+{{ if .OpenedReport }}
 <h3>balance</h3>
 <dl>
   <dt>balance</dt>
-  <dd>{{ .Report.CurrentAsset|floatstr }}</dd>
+  <dd>{{ .OpenedReport.CurrentAsset|floatstr }}</dd>
   <dt>total buys</dt>
-  <dd>{{ .Report.TotalAssetBuys|floatstr }}</dd>
+  <dd>{{ .OpenedReport.TotalAssetBuys|floatstr }}</dd>
   <dt>total sells</dt>
-  <dd>{{ .Report.TotalAssetSells|floatstr }}</dd>
+  <dd>{{ .OpenedReport.TotalAssetSells|floatstr }}</dd>
 </dl>
+{{ end }}
 
 <table class="pure-table pure-table-horizontal">
+  {{ if .OpenedReport }}
   <thead>
     <tr>
-      <th>type</th>
+      <th>opened</th>
       <th>rate</th>
       <th>amount</th>
       <th>fee</th>
@@ -56,22 +60,54 @@
     </tr>
   </thead>
   <tbody>
-    {{ range .Report.Rows }}
-    <tr>
-      <td>{{ .Type }}</td>
-      <td>{{ .Rate|floatstr }}</td>
-      <td>{{ .Amount|floatstr }}</td>
-      <td>
-        {{ if (eq .Type "sell") }}
-        {{ .FeeAmount|floatstr }} BTC
-        {{ else }}
-        {{ .FeeAmount|floatstr }} {{ .Asset }}
-        {{ end }}
-      </td>
-      <td>{{ .MyAmount|floatstr }}</td>
-      <td>{{ .MyTotal|floatstr }} BTC</td>
-    </tr>
+  {{ range .OpenedReport.Rows }}
+  <tr>
+    <td>{{ .Type }}</td>
+    <td>{{ .Rate|floatstr }}</td>
+    <td>{{ .Amount|floatstr }}</td>
+    <td>
+      {{ if (eq .Type "sell") }}
+      {{ .FeeAmount|floatstr }} BTC
+      {{ else }}
+      {{ .FeeAmount|floatstr }} {{ .Asset }}
+      {{ end }}
+    </td>
+    <td>{{ .MyAmount|floatstr }}</td>
+    <td>{{ .MyTotal|floatstr }} BTC</td>
+  </tr>
   {{ end }}
   </tbody>
+  {{ end }}
+
+  {{ if .ClosedReport }}
+  <thead>
+    <tr>
+      <th>closed</th>
+      <th>rate</th>
+      <th>amount</th>
+      <th>fee</th>
+      <th>my amount</th>
+      <th>total</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{ range .ClosedReport.Rows }}
+  <tr>
+    <td>{{ .Type }}</td>
+    <td>{{ .Rate|floatstr }}</td>
+    <td>{{ .Amount|floatstr }}</td>
+    <td>
+      {{ if (eq .Type "sell") }}
+      {{ .FeeAmount|floatstr }} BTC
+      {{ else }}
+      {{ .FeeAmount|floatstr }} {{ .Asset }}
+      {{ end }}
+    </td>
+    <td>{{ .MyAmount|floatstr }}</td>
+    <td>{{ .MyTotal|floatstr }} BTC</td>
+  </tr>
+  {{ end }}
+  </tbody>
+  {{ end }}
 </table>
 {{ end}}

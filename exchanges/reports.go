@@ -17,16 +17,75 @@ type Report struct {
 	ticker   poloniex.PoloniexTicker
 }
 
-func NewReport(asset, currency string, ticker poloniex.PoloniexTicker, rows []Exchange) *Report {
-	return &Report{
-		Asset:    asset,
-		Currency: currency,
-		Rows:     rows,
-		ticker:   ticker,
+func reverseExchanges(a []Exchange) {
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
 	}
 }
 
-func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) []*Report {
+func NewReport(asset, currency string, ticker poloniex.PoloniexTicker, rows []Exchange) (closed, opened *Report) {
+	// input data : date desc
+	ascRows := append([]Exchange(nil), rows...)
+	reverseExchanges(ascRows)
+
+	var myAmountAccum float64
+	lastZeroSumIdx := -1
+	for i, r := range ascRows {
+		if r.Type == ExchangeBuy {
+			myAmountAccum += r.MyAmount()
+		} else {
+			myAmountAccum -= r.Amount
+		}
+		if myAmountAccum <= float64(0) {
+			lastZeroSumIdx = i
+		}
+	}
+
+	if lastZeroSumIdx == -1 {
+		// closed exchange not exists
+		closed = nil
+		opened = &Report{
+			Asset:    asset,
+			Currency: currency,
+			Rows:     rows,
+			ticker:   ticker,
+		}
+		return
+	}
+
+	closedRows := ascRows[:lastZeroSumIdx+1]
+	reverseExchanges(closedRows)
+
+	openedRows := ascRows[lastZeroSumIdx+1:]
+	reverseExchanges(openedRows)
+
+	if len(closedRows) == 0 {
+		closed = nil
+	} else {
+		closed = &Report{
+			Asset:    asset,
+			Currency: currency,
+			Rows:     closedRows,
+			ticker:   ticker,
+		}
+	}
+
+	if len(openedRows) == 0 {
+		opened = nil
+	} else {
+		opened = &Report{
+			Asset:    asset,
+			Currency: currency,
+			Rows:     openedRows,
+			ticker:   ticker,
+		}
+	}
+
+	return
+}
+
+func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) (closedList, openedList []*Report) {
 	// find all asset-currency pairs
 	currencyPairSet := mapset.NewSet()
 	for _, e := range rows {
@@ -44,8 +103,10 @@ func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) []*Report {
 	sort.Strings(currencyPairs)
 
 	// generate reports
-	reports := make([]*Report, len(currencyPairs))
-	for i, currencyPair := range currencyPairs {
+	closedList = []*Report{}
+	openedList = []*Report{}
+
+	for _, currencyPair := range currencyPairs {
 		tokens := strings.Split(currencyPair, "_")
 		asset := tokens[0]
 		currency := tokens[1]
@@ -57,9 +118,15 @@ func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) []*Report {
 			}
 		}
 		ticker, _ := tickers.Get(asset, currency)
-		reports[i] = NewReport(asset, currency, ticker, selected)
+		closed, opened := NewReport(asset, currency, ticker, selected)
+		if closed != nil {
+			closedList = append(closedList, closed)
+		}
+		if opened != nil {
+			openedList = append(openedList, opened)
+		}
 	}
-	return reports
+	return
 }
 
 func (r *Report) CurrentAsset() float64 {
