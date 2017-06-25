@@ -7,22 +7,6 @@ import (
 	"github.com/if1live/kanae/histories"
 )
 
-func handlerSyncPage(w http.ResponseWriter, r *http.Request) {
-	type Context struct {
-		Trade   *histories.TradeSync
-		Lending *histories.LendingSync
-		Balance *histories.BalanceSync
-	}
-
-	ctx := Context{
-		Trade:   db.MakeTradeSync(nil),
-		Lending: db.MakeLendingSync(nil),
-		Balance: db.MakeBalanceSync(nil),
-	}
-
-	renderLayoutTemplate(w, "sync.html", ctx)
-}
-
 func handlerSync(w http.ResponseWriter, r *http.Request, sync histories.Synchronizer) {
 	rowcount, err := sync.SyncRecent()
 	if err != nil {

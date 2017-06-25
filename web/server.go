@@ -52,9 +52,19 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 
 func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
+
 	type Context struct {
+		TradeSync   *histories.TradeSync
+		LendingSync *histories.LendingSync
+		BalanceSync *histories.BalanceSync
 	}
-	ctx := Context{}
+
+	ctx := Context{
+		TradeSync:   db.MakeTradeSync(nil),
+		LendingSync: db.MakeLendingSync(nil),
+		BalanceSync: db.MakeBalanceSync(nil),
+	}
+
 	renderLayoutTemplate(w, "index.html", ctx)
 }
 
@@ -69,7 +79,6 @@ func (s *Server) Run() {
 	http.HandleFunc("/trade/", handlerTradeIndex)
 	http.HandleFunc("/lending/", handlerLending)
 
-	http.HandleFunc("/sync/", handlerSyncPage)
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
 	http.HandleFunc("/sync/trade", handlerSyncTrade)
 	http.HandleFunc("/sync/lending", handlerSyncLending)
