@@ -1,14 +1,6 @@
 package commands
 
-import (
-	"html/template"
-	"path"
-	"strings"
-
-	"os"
-
-	"github.com/if1live/kanae/kanaelib"
-)
+import "github.com/if1live/kanae/kanaelib"
 
 type Dev struct {
 	settings kanaelib.Settings
@@ -31,23 +23,6 @@ func (cmd *Dev) Execute() error {
 		assets := view.UsedAssets("BTC")
 		fmt.Println("used assets :", assets)
 	*/
-
-	fmap := template.FuncMap{
-		"title": strings.Title,
-	}
-	ctx := map[string]string{
-		"Title":   "Hello world",
-		"Content": "Hi there",
-	}
-	basePath := kanaelib.GetExecutablePath()
-	fp := path.Join(basePath, "web", "templates", "sample.html")
-	tpl, err := template.New("sample.html").Funcs(fmap).ParseFiles(fp)
-	if err != nil {
-		panic(err)
-	}
-	if err := tpl.Execute(os.Stdout, ctx); err != nil {
-		panic(err)
-	}
 
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)

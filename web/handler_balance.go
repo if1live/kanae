@@ -24,5 +24,9 @@ func handlerBalance(w http.ResponseWriter, r *http.Request) {
 		View:   view,
 		Report: &report,
 	}
-	renderLayoutTemplate(w, "balance.html", ctx)
+	err := renderLayoutTemplate(w, "layout.html", "balance.html", ctx)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
 }

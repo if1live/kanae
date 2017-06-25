@@ -36,7 +36,11 @@ func handlerTradeIndex(w http.ResponseWriter, r *http.Request) {
 		View:       view,
 		UsedAssets: usedAssets,
 	}
-	renderLayoutTemplate(w, "trade.html", ctx)
+	err := renderLayoutTemplate(w, "layout.html", "trade.html", ctx)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
 }
 
 func handlerTradeAsset(w http.ResponseWriter, r *http.Request, asset string) {
@@ -69,5 +73,9 @@ func handlerTradeAsset(w http.ResponseWriter, r *http.Request, asset string) {
 		Ticker:          ticker,
 		TickerUpdatedAt: svr.tickers.UpdatedAt,
 	}
-	renderLayoutTemplate(w, "trade_detail.html", ctx)
+	err = renderLayoutTemplate(w, "layout.html", "trade_detail.html", ctx)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
 }

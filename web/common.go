@@ -9,6 +9,10 @@ import (
 
 	"errors"
 
+	"io"
+
+	"path/filepath"
+
 	"github.com/if1live/kanae/kanaelib"
 )
 
@@ -38,41 +42,41 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 func makeFuncMap() template.FuncMap {
 	fmap := template.FuncMap{
 		"title": strings.Title,
+		"upper": strings.ToUpper,
 	}
 	return fmap
 }
 
-func renderTemplate(w http.ResponseWriter, tplfile string, ctx interface{}) {
-	fmap := makeFuncMap()
+func renderTemplate(w io.Writer, tplfile string, ctx interface{}) error {
 	basePath := kanaelib.GetExecutablePath()
 	fp := path.Join(basePath, "web", "templates", tplfile)
-	tpl, err := template.New(tplfile).Funcs(fmap).ParseFiles(fp)
-	if err != nil {
-		renderErrorJSON(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	if err := tpl.Execute(w, ctx); err != nil {
-		renderErrorJSON(w, err, http.StatusInternalServerError)
-	}
+	return renderTemplateCore(w, fp, ctx)
 }
 
-func renderLayoutTemplate(w http.ResponseWriter, tplfile string, v interface{}) {
+func renderLayoutTemplate(w io.Writer, layoutfile, tplfile string, v interface{}) error {
 	basePath := kanaelib.GetExecutablePath()
-	lp := path.Join(basePath, "web", "templates", "layout.html")
+	lp := path.Join(basePath, "web", "templates", layoutfile)
 	fp := path.Join(basePath, "web", "templates", tplfile)
+	return renderLayoutTemplateCore(w, lp, fp, v)
+}
 
-	//fmap := makeFuncMap()
-	//tpl, err := template.New(tplfile).Funcs(fmap).ParseFiles(lp, fp)
-	tpl, err := template.ParseFiles(lp, fp)
+func renderTemplateCore(w io.Writer, fp string, v interface{}) error {
+	_, tplfile := filepath.Split(fp)
+	fmap := makeFuncMap()
+	tpl, err := template.New(tplfile).Funcs(fmap).ParseFiles(fp)
 	if err != nil {
-		renderErrorJSON(w, err, http.StatusInternalServerError)
-		return
+		return err
 	}
-
-	if err := tpl.Execute(w, v); err != nil {
-		renderErrorJSON(w, err, http.StatusInternalServerError)
+	return tpl.Execute(w, v)
+}
+func renderLayoutTemplateCore(w io.Writer, lp, fp string, v interface{}) error {
+	_, layoutfile := filepath.Split(lp)
+	fmap := makeFuncMap()
+	tpl, err := template.New(layoutfile).Funcs(fmap).ParseFiles(lp, fp)
+	if err != nil {
+		return err
 	}
+	return tpl.Execute(w, v)
 }
 
 func renderStatic(w http.ResponseWriter, r *http.Request, target string) {

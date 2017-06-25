@@ -79,15 +79,11 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		BalanceReport: &balanceReport,
 		Tickers:       svr.tickers,
 	}
-	renderLayoutTemplate(w, "index.html", ctx)
-}
-
-func handlerSample(w http.ResponseWriter, r *http.Request) {
-	ctx := map[string]string{
-		"Title":   "Hello world",
-		"Content": "Hi there",
+	err := renderLayoutTemplate(w, "layout.html", "index.html", ctx)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
 	}
-	renderTemplate(w, "sample.html", ctx)
 }
 
 func handlerStatic(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +94,6 @@ func handlerStatic(w http.ResponseWriter, r *http.Request) {
 func (s *Server) Run() {
 	http.HandleFunc("/", handlerIndex)
 	http.HandleFunc("/static/", handlerStatic)
-	http.HandleFunc("/sample/", handlerSample)
 
 	http.HandleFunc("/trade/", handlerTradeDispatch)
 	http.HandleFunc("/lending/", handlerLending)

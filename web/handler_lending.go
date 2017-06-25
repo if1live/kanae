@@ -19,5 +19,9 @@ func handlerLending(w http.ResponseWriter, r *http.Request) {
 		Sync: sync,
 		View: view,
 	}
-	renderLayoutTemplate(w, "lending.html", ctx)
+	err := renderLayoutTemplate(w, "layout.html", "lending.html", ctx)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
 }
