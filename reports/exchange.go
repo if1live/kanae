@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/deckarep/golang-set"
+	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/histories/exchanges"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
@@ -14,18 +15,19 @@ type ExchangeReport struct {
 	Asset    string
 	Currency string
 	Rows     []exchanges.Exchange
-	Ticker   poloniex.PoloniexTicker
+	ticker   poloniex.PoloniexTicker
 }
 
-func NewExchangeReport(asset, currency string, rows []exchanges.Exchange) *ExchangeReport {
+func NewExchangeReport(asset, currency string, ticker poloniex.PoloniexTicker, rows []exchanges.Exchange) *ExchangeReport {
 	return &ExchangeReport{
 		Asset:    asset,
 		Currency: currency,
 		Rows:     rows,
+		ticker:   ticker,
 	}
 }
 
-func NewExchangeReports(rows []exchanges.Exchange) []*ExchangeReport {
+func NewExchangeReports(tickers *histories.TickerCache, rows []exchanges.Exchange) []*ExchangeReport {
 	// find all asset-currency pairs
 	currencyPairSet := mapset.NewSet()
 	for _, e := range rows {
@@ -55,7 +57,8 @@ func NewExchangeReports(rows []exchanges.Exchange) []*ExchangeReport {
 				selected = append(selected, r)
 			}
 		}
-		reports[i] = NewExchangeReport(asset, currency, selected)
+		ticker, _ := tickers.Get(asset, currency)
+		reports[i] = NewExchangeReport(asset, currency, ticker, selected)
 	}
 	return reports
 }
@@ -72,7 +75,7 @@ func (r *ExchangeReport) CurrentAsset() float64 {
 
 func (r *ExchangeReport) EquivalentCurrency() float64 {
 	asset := r.CurrentAsset()
-	rate := r.Ticker.Last
+	rate := r.ticker.Last
 	return asset * rate
 }
 

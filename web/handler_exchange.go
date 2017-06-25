@@ -30,11 +30,7 @@ func handlerExchangeIndex(w http.ResponseWriter, r *http.Request) {
 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
-
-	rs := reports.NewExchangeReports(view.All())
-	for _, r := range rs {
-		r.Ticker, _ = svr.tickers.Get(r.Asset, r.Currency)
-	}
+	rs := reports.NewExchangeReports(svr.tickers, view.All())
 
 	opens := []*reports.ExchangeReport{}
 	closes := []*reports.ExchangeReport{}
@@ -80,7 +76,7 @@ func handlerExchangeAsset(w http.ResponseWriter, r *http.Request, asset string) 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
 	histories := view.Get(asset, "BTC")
-	report := reports.NewExchangeReport(asset, "BTC", histories)
+	report := reports.NewExchangeReport(asset, "BTC", ticker, histories)
 	ctx := Context{
 		Asset:           asset,
 		Sync:            sync,
