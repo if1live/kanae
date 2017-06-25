@@ -38,6 +38,7 @@ func (s *Settings) MakePoloniex() *poloniex.Poloniex {
 		APISecret:               s.APISecret,
 		AuthenticatedAPISupport: true,
 		Verbose:                 true,
+		Websocket:               true,
 	}
 	exchange := poloniex.Poloniex{}
 	exchange.Setup(conf)

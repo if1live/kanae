@@ -14,7 +14,7 @@ func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 		Histories []histories.PoloniexLendingHistory `json:"histories"`
 	}
 
-	q := db.MakeLendingView()
+	q := svr.db.MakeLendingView()
 	rows := q.All("BTC")
 	histories := []histories.PoloniexLendingHistory{}
 	for _, row := range rows {
@@ -33,7 +33,7 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	asset := strings.ToUpper(r.URL.Path[len("/histories/trade/"):])
-	q := db.MakeTradeView()
+	q := svr.db.MakeTradeView()
 	rows := q.All(asset, "BTC")
 	histories := []poloniex.PoloniexAuthentictedTradeHistory{}
 	for _, row := range rows {

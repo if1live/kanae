@@ -2,6 +2,7 @@ package kanaelib
 
 import (
 	"math"
+	"strconv"
 
 	"github.com/kardianos/osext"
 )
@@ -32,4 +33,8 @@ func ToFixed(num float64, precision int) float64 {
 func ToPoloniexFixed(num float64) float64 {
 	prec := 8
 	return ToFixed(num, prec)
+}
+
+func ToFloatStr(num float64) string {
+	return strconv.FormatFloat(num, 'f', 8, 64)
 }

@@ -17,6 +17,7 @@
 
 # build output
 kanae
+debug
 
 # local dev
 .goenv

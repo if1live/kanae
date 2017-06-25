@@ -21,33 +21,37 @@ type Server struct {
 	port int
 
 	settings kanaelib.Settings
+	db       *histories.Database
+	api      *poloniex.Poloniex
+	tickers  *histories.TickerCache
 }
 
-// use singleton
-// only one web server exist
 var svr *Server
-var db *histories.Database
-var api *poloniex.Poloniex
 
 func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	if svr != nil {
 		panic("already server exists!")
 	}
 
+	api := s.MakePoloniex()
+	tickers := histories.NewTickerCache(api)
+	tickers.Refresh()
+
 	// share single orm
-	dbobj, err := histories.NewDatabase(s.DatabaseFileName)
+	db, err := histories.NewDatabase(s.DatabaseFileName)
 	if err != nil {
 		panic(err)
 	}
-	db = &dbobj
-
-	api = s.MakePoloniex()
 
 	svr = &Server{
 		addr:     addr,
 		port:     port,
 		settings: s,
+		db:       &db,
+		api:      api,
+		tickers:  tickers,
 	}
+
 	return svr
 }
 
@@ -60,17 +64,20 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		BalanceSync *histories.BalanceSync
 
 		BalanceReport *reports.BalanceReport
+
+		Tickers *histories.TickerCache
 	}
 
-	balanceView := db.MakeBalanceView()
+	balanceView := svr.db.MakeBalanceView()
 	balanceReport := reports.NewBalanceReport("BTC", balanceView.CurrencyRows("BTC"))
 
 	ctx := Context{
-		TradeSync:   db.MakeTradeSync(nil),
-		LendingSync: db.MakeLendingSync(nil),
-		BalanceSync: db.MakeBalanceSync(nil),
+		TradeSync:   svr.db.MakeTradeSync(nil),
+		LendingSync: svr.db.MakeLendingSync(nil),
+		BalanceSync: svr.db.MakeBalanceSync(nil),
 
 		BalanceReport: &balanceReport,
+		Tickers:       svr.tickers,
 	}
 
 	renderLayoutTemplate(w, "index.html", ctx)
@@ -84,13 +91,14 @@ func handlerStatic(w http.ResponseWriter, r *http.Request) {
 func (s *Server) Run() {
 	http.HandleFunc("/", handlerIndex)
 	http.HandleFunc("/static/", handlerStatic)
-	http.HandleFunc("/trade/", handlerTradeIndex)
+	http.HandleFunc("/trade/", handlerTradeDispatch)
 	http.HandleFunc("/lending/", handlerLending)
 	http.HandleFunc("/balance/", handlerBalance)
 
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
 	http.HandleFunc("/sync/trade", handlerSyncTrade)
 	http.HandleFunc("/sync/lending", handlerSyncLending)
+	http.HandleFunc("/sync/ticker", handlerSyncTicker)
 
 	http.HandleFunc("/histories/lending/", handlerLendingHistories)
 	http.HandleFunc("/histories/trade/", handlerTradeHistories)
@@ -101,5 +109,5 @@ func (s *Server) Run() {
 }
 
 func (s *Server) Close() {
-	db.Close()
+	s.db.Close()
 }

@@ -25,7 +25,7 @@ func (cmd *Dev) Execute() error {
 
 	view := db.MakeTradeView()
 	assets := view.UsedAssets("BTC")
-	fmt.Println(assets)
+	fmt.Println("used assets :", assets)
 
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)

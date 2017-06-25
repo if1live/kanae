@@ -32,7 +32,7 @@ func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sync := db.MakeBalanceSync(api)
+	sync := svr.db.MakeBalanceSync(svr.api)
 	handlerSync(w, r, sync)
 }
 
@@ -41,7 +41,7 @@ func handlerSyncTrade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sync := db.MakeTradeSync(api)
+	sync := svr.db.MakeTradeSync(svr.api)
 	handlerSync(w, r, sync)
 }
 
@@ -50,6 +50,15 @@ func handlerSyncLending(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sync := db.MakeLendingSync(api)
+	sync := svr.db.MakeLendingSync(svr.api)
 	handlerSync(w, r, sync)
+}
+
+func handlerSyncTicker(w http.ResponseWriter, r *http.Request) {
+	if ok := checkPostRequest(w, r); !ok {
+		return
+	}
+
+	svr.tickers.Refresh()
+	renderJSON(w, svr.tickers)
 }

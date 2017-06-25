@@ -16,6 +16,12 @@
 
 <h2>sync</h2>
 <div>
+  last ticker sync : {{ .Tickers.UpdatedAt }}
+  <br/>
+  <button type="button" class="pure-button btn-sync-ticker">sync ticker</button>
+</div>
+
+<div>
   last trade sync : {{ .TradeSync.GetLastTime }}
   <br/>
   <button type="button" class="pure-button btn-sync-trade">sync trade</button>

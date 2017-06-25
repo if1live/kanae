@@ -1,0 +1,77 @@
+{{ define "title" }}{{.Asset}}{{ end }}
+
+{{ define "content" }}
+<h2>trade - {{.Asset}}</h2>
+
+<h3>sync time</h3>
+<dl>
+  <dt>last sync time</dt>
+  <dd>{{ .Sync.GetLastTime }}</dd>
+</dl>
+
+<h3>ticker</h3>
+<dl>
+  <dt>updated at</dt>
+  <dd>{{ .TickerUpdatedAt }}</dd>
+
+  <dt>last</dt>
+  <dd>{{ .Ticker.Last }}</dd>
+  <dt>lowest ask</dt>
+  <dd>{{ .Ticker.LowestAsk }}</dd>
+  <dt>highest bid</dt>
+  <dd>{{ .Ticker.HighestBid }}</dd>
+	<dt>percent change</dt>
+  <dd>{{ .Ticker.PercentChange }}</dd>
+  <dt>base volume</dt>
+	<dd>{{ .Ticker.BaseVolume }}</dd>
+	<dt>quote volume</dt>
+  <dd>{{ .Ticker.QuoteVolume }}</dd>
+	<dt>is frozen</dt>
+  <dd>{{ .Ticker.IsFrozen }}</dd>
+	<dt>high 24hr</dt>
+  <dd>{{ .Ticker.High24Hr }}</dd>
+	<dt>low 24hr</dt>
+  <dd>{{ .Ticker.Low24Hr }}</dd>
+</dl>
+
+<h3>balance</h3>
+<dl>
+  <dt>balance</dt>
+  <dd>{{ .Report.CurrentAsset }}</dd>
+  <dt>total buys</dt>
+  <dd>{{ .Report.TotalAssetBuys }}</dd>
+  <dt>total sells</dt>
+  <dd>{{ .Report.TotalAssetSells }}</dd>
+</dl>
+
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>type</th>
+      <th>rate</th>
+      <th>amount</th>
+      <th>fee</th>
+      <th>my amount</th>
+      <th>total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ range .Report.Rows }}
+    <tr>
+      <td>{{ .Type }}</td>
+      <td>{{ .RateStr }}</td>
+      <td>{{ .AmountStr }}</td>
+      <td>
+        {{ if (eq .Type "sell") }}
+        {{ .FeeAmountStr }} BTC
+        {{ else }}
+        {{ .FeeAmountStr }} {{ .Asset }}
+        {{ end }}
+      </td>
+      <td>{{ .MyAmountStr }}</td>
+      <td>{{ .Total }} BTC</td>
+    </tr>
+  {{ end }}
+  </tbody>
+</table>
+{{ end}}

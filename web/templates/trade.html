@@ -5,6 +5,13 @@
 
 <p>last sync time : {{ .Sync.GetLastTime }}</p>
 
+<ul>
+  {{ range .UsedAssets }}
+  <li><a href="/trade/{{ . }}">{{ . }}</a></li>
+  {{ end }}
+</ul>
+
+{{/*
 <table class="pure-table pure-table-horizontal">
   <thead>
     <tr>
@@ -27,4 +34,5 @@
   {{ end }}
   </tbody>
 </table>
+*/}}
 {{ end }}

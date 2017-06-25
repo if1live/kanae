@@ -69,14 +69,68 @@ func (r *TradeRow) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
 }
 
 func (r *TradeRow) FeeAmount() float64 {
-	fee := r.Amount * r.Fee
-	return fee
-}
-func (r *TradeRow) FixedFeeAmount() float64 {
-	return kanaelib.ToPoloniexFixed(r.FeeAmount())
+	switch r.Type {
+	case TradeBuy:
+		return r.buyFeeAmount()
+	case TradeSell:
+		return r.sellFeeAmount()
+	}
+	return -1
 }
 
+// sell example
+// rate: 0.00007900
+// amount : 137.43455498
+// fee : 0.00001629 BTC (0.15%)
+// total in db : 0.01085732
+// total in poloniex : 0.01084103 BTC
+// 0.00001629 BTC = 0.01085732 BTC * (0.01) * (0.15)
+// fee amount = (total in db) * fee
+func (r *TradeRow) sellFeeAmount() float64 {
+	return r.Total * r.Fee
+}
+
+// buy example
+// amount : 13.00373802
+// fee : 0.03250935 SYS (0.25%)
+// total : 0.00094368 BTC
+// 0.03250935 SYS = 13.00373802 SYS * (0.01) * (0.25)
+// fee amount = amount * fee
+func (r *TradeRow) buyFeeAmount() float64 {
+	return r.Amount * r.Fee
+}
+
+func (r *TradeRow) MyTotal() float64 {
+	switch r.Type {
+	case TradeBuy:
+		return r.Total
+	case TradeSell:
+		return r.Total - r.FeeAmount()
+	}
+	return -1
+}
 func (r *TradeRow) MyAmount() float64 {
-	myamount := r.Amount - r.FeeAmount()
-	return myamount
+	switch r.Type {
+	case TradeBuy:
+		return r.Amount - r.FeeAmount()
+	case TradeSell:
+		return r.Amount
+	}
+	return -1
+}
+
+func (r *TradeRow) AmountStr() string {
+	return kanaelib.ToFloatStr(r.Amount)
+}
+
+func (r *TradeRow) FeeAmountStr() string {
+	return kanaelib.ToFloatStr(r.FeeAmount())
+}
+
+func (r *TradeRow) MyAmountStr() string {
+	return kanaelib.ToFloatStr(r.MyAmount())
+}
+
+func (r *TradeRow) RateStr() string {
+	return kanaelib.ToFloatStr(r.Rate)
 }

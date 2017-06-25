@@ -3,7 +3,6 @@ package reports
 import (
 	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
-	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
 type TradeReport struct {
@@ -22,8 +21,8 @@ func NewTradeReport(asset, currency string, rows []histories.TradeRow) TradeRepo
 
 func (r *TradeReport) CurrentAsset() float64 {
 	var total float64
-	total += r.TotalBuyAsset()
-	total -= r.TotalSellAsset()
+	total += r.TotalAssetBuys()
+	total -= r.TotalAssetSells()
 	return total
 }
 func (r *TradeReport) ProfitLoss() float64 {
@@ -39,7 +38,7 @@ func (r *TradeReport) ProfitLoss() float64 {
 	return total
 }
 
-func (r *TradeReport) TotalBuyAsset() float64 {
+func (r *TradeReport) TotalAssetBuys() float64 {
 	var total float64
 	for _, r := range r.Rows {
 		if r.Type == histories.TradeBuy {
@@ -48,7 +47,7 @@ func (r *TradeReport) TotalBuyAsset() float64 {
 	}
 	return total
 }
-func (r *TradeReport) TotalSellAsset() float64 {
+func (r *TradeReport) TotalAssetSells() float64 {
 	var total float64
 	for _, r := range r.Rows {
 		if r.Type == histories.TradeSell {
@@ -65,50 +64,3 @@ func (r *TradeReport) CurrentFixedAsset() float64 {
 func (r *TradeReport) FixedProfitLoss() float64 {
 	return kanaelib.ToPoloniexFixed(r.ProfitLoss())
 }
-
-type CurrencyState struct {
-	FirstCurrency  string  `json:"firstCurrency"`
-	SecondCurrency string  `json:"secondCurrency"`
-	Available      float64 `json:"available,string"`
-
-	Ticker poloniex.PoloniexTicker
-}
-
-/*
-func (r *PoloniexReport) GetStates() []CurrencyState {
-	balances, err := r.api.GetBalances()
-	if err != nil {
-		check(err)
-	}
-
-	tickers, err := r.api.GetTicker()
-	if err != nil {
-		check(err)
-	}
-
-	states := []CurrencyState{}
-
-	for key, balance := range balances.Currency {
-		if balance == 0 {
-			continue
-		}
-		if key == "BTC" {
-			continue
-		}
-
-		// example: BTC_XRP
-		tickerKey := "BTC_" + key
-		ticker := tickers[tickerKey]
-
-		s := CurrencyState{
-			FirstCurrency:  "BTC",
-			SecondCurrency: key,
-			Available:      balance,
-
-			Ticker: ticker,
-		}
-		states = append(states, s)
-	}
-	return states
-}
-*/

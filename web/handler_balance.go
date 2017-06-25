@@ -14,8 +14,8 @@ func handlerBalance(w http.ResponseWriter, r *http.Request) {
 		Report *reports.BalanceReport
 	}
 
-	sync := db.MakeBalanceSync(nil)
-	view := db.MakeBalanceView()
+	sync := svr.db.MakeBalanceSync(nil)
+	view := svr.db.MakeBalanceView()
 	currency := "BTC"
 	report := reports.NewBalanceReport(currency, view.CurrencyRows(currency))
 

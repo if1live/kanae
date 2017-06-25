@@ -12,8 +12,8 @@ func handlerLending(w http.ResponseWriter, r *http.Request) {
 		View *histories.LendingView
 	}
 
-	sync := db.MakeLendingSync(nil)
-	view := db.MakeLendingView()
+	sync := svr.db.MakeLendingSync(nil)
+	view := svr.db.MakeLendingView()
 
 	ctx := Context{
 		Sync: sync,

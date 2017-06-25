@@ -14,6 +14,9 @@ function sync(el, url, type) {
   });
 }
 
+document.querySelector('.btn-sync-ticker').onclick = function(evt) {
+  sync(this, '/sync/ticker', 'ticker');
+}
 document.querySelector('.btn-sync-trade').onclick = function (evt) {
   sync(this, '/sync/trade', 'trade');
 }
