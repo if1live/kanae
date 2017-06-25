@@ -1,4 +1,4 @@
-package histories
+package kanaelib
 
 import (
 	"time"

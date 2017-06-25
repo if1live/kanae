@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/if1live/kanae/histories/lendings"
+	"github.com/if1live/kanae/lendings"
 )
 
 func handlerLending(w http.ResponseWriter, r *http.Request) {

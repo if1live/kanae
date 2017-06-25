@@ -3,7 +3,6 @@ package exchanges
 import (
 	"time"
 
-	"github.com/if1live/kanae/histories/helpers"
 	"github.com/jinzhu/gorm"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
@@ -12,6 +11,12 @@ const (
 	ExchangeSell = "sell"
 	ExchangeBuy  = "buy"
 )
+
+func convertPoloniexDate(val string) time.Time {
+	// date example : 2017-06-18 04:31:08
+	t, _ := time.Parse("2006-01-02 15:04:05", val)
+	return t
+}
 
 // PoloniexAuthenticatedTradeHistory
 type Exchange struct {
@@ -42,7 +47,7 @@ func NewExchange(asset, currency string, h poloniex.PoloniexAuthentictedTradeHis
 
 		GlobalTradeID: h.GlobalTradeID,
 		TradeID:       h.TradeID,
-		Date:          helpers.ConvertPoloniexDate(h.Date),
+		Date:          convertPoloniexDate(h.Date),
 		Rate:          h.Rate,
 		Amount:        h.Amount,
 		Total:         h.Total,

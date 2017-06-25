@@ -1,9 +1,9 @@
 package histories
 
 import (
-	"github.com/if1live/kanae/histories/balances"
-	"github.com/if1live/kanae/histories/exchanges"
-	"github.com/if1live/kanae/histories/lendings"
+	"github.com/if1live/kanae/balances"
+	"github.com/if1live/kanae/exchanges"
+	"github.com/if1live/kanae/lendings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"

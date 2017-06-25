@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/if1live/kanae/histories/exchanges"
-	"github.com/if1live/kanae/reports"
+	"github.com/if1live/kanae/exchanges"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
@@ -24,16 +23,18 @@ func handlerExchangeIndex(w http.ResponseWriter, r *http.Request) {
 		Sync *exchanges.Sync
 		View *exchanges.View
 
-		OpenedReports []*reports.ExchangeReport
-		ClosedReports []*reports.ExchangeReport
+		OpenedReports []*exchanges.Report
+		ClosedReports []*exchanges.Report
+
+		ClosedSummay *exchanges.ClosedSummaryReport
 	}
 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
-	rs := reports.NewExchangeReports(svr.tickers, view.All())
+	rs := exchanges.NewReports(svr.tickers, view.All())
 
-	opens := []*reports.ExchangeReport{}
-	closes := []*reports.ExchangeReport{}
+	opens := []*exchanges.Report{}
+	closes := []*exchanges.Report{}
 	for _, r := range rs {
 		if r.CurrentAsset() == 0 {
 			closes = append(closes, r)
@@ -42,11 +43,14 @@ func handlerExchangeIndex(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	closedsummary := exchanges.NewClosedSummaryReport(closes)
+
 	ctx := Context{
 		Sync:          sync,
 		View:          view,
 		OpenedReports: opens,
 		ClosedReports: closes,
+		ClosedSummay:  closedsummary,
 	}
 	err := renderLayoutTemplate(w, "layout.html", "exchange_index.html", ctx)
 	if err != nil {
@@ -61,7 +65,7 @@ func handlerExchangeAsset(w http.ResponseWriter, r *http.Request, asset string) 
 
 		Sync   *exchanges.Sync
 		View   *exchanges.View
-		Report *reports.ExchangeReport
+		Report *exchanges.Report
 
 		Ticker          poloniex.PoloniexTicker
 		TickerUpdatedAt time.Time
@@ -76,7 +80,7 @@ func handlerExchangeAsset(w http.ResponseWriter, r *http.Request, asset string) 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
 	histories := view.Get(asset, "BTC")
-	report := reports.NewExchangeReport(asset, "BTC", ticker, histories)
+	report := exchanges.NewReport(asset, "BTC", ticker, histories)
 	ctx := Context{
 		Asset:           asset,
 		Sync:            sync,

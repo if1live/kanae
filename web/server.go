@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/if1live/kanae/balances"
+	"github.com/if1live/kanae/exchanges"
 	"github.com/if1live/kanae/histories"
-	"github.com/if1live/kanae/histories/balances"
-	"github.com/if1live/kanae/histories/exchanges"
-	"github.com/if1live/kanae/histories/lendings"
 	"github.com/if1live/kanae/kanaelib"
-	"github.com/if1live/kanae/reports"
+	"github.com/if1live/kanae/lendings"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
@@ -26,7 +25,7 @@ type Server struct {
 	settings kanaelib.Settings
 	db       *histories.Database
 	api      *poloniex.Poloniex
-	tickers  *histories.TickerCache
+	tickers  *kanaelib.TickerCache
 }
 
 var svr *Server
@@ -37,7 +36,7 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	}
 
 	api := s.MakePoloniex()
-	tickers := histories.NewTickerCache(api)
+	tickers := kanaelib.NewTickerCache(api)
 	tickers.Refresh()
 
 	// share single orm
@@ -66,13 +65,13 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		LendingSync  *lendings.Sync
 		BalanceSync  *balances.Sync
 
-		BalanceReport *reports.BalanceReport
+		BalanceReport *balances.Report
 
-		Tickers *histories.TickerCache
+		Tickers *kanaelib.TickerCache
 	}
 
 	balanceView := svr.db.MakeBalanceView()
-	balanceReport := reports.NewBalanceReport("BTC", balanceView.CurrencyRows("BTC"))
+	balanceReport := balances.NewReport("BTC", balanceView.CurrencyRows("BTC"))
 
 	ctx := Context{
 		ExchangeSync: svr.db.MakeExchangeSync(nil),
@@ -107,8 +106,8 @@ func (s *Server) Run() {
 	http.HandleFunc("/sync/lending", handlerSyncLending)
 	http.HandleFunc("/sync/ticker", handlerSyncTicker)
 
-	http.HandleFunc("/histories/lending/", handlerLendingHistories)
-	http.HandleFunc("/histories/trade/", handlerTradeHistories)
+	//http.HandleFunc("/histories/lending/", handlerLendingHistories)
+	//http.HandleFunc("/histories/trade/", handlerTradeHistories)
 
 	addr := s.addr + ":" + strconv.Itoa(s.port)
 	fmt.Println("run server on", addr)

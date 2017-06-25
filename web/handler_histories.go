@@ -1,14 +1,6 @@
 package web
 
-import (
-	"net/http"
-
-	"strings"
-
-	"github.com/if1live/kanae/histories/lendings"
-	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
-)
-
+/*
 func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 	type Response struct {
 		Histories []lendings.PoloniexLendingHistory `json:"histories"`
@@ -45,3 +37,4 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(w, resp)
 }
+*/

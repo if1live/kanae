@@ -3,9 +3,14 @@ package lendings
 import (
 	"time"
 
-	"github.com/if1live/kanae/histories/helpers"
 	"github.com/jinzhu/gorm"
 )
+
+func convertPoloniexDate(val string) time.Time {
+	// date example : 2017-06-18 04:31:08
+	t, _ := time.Parse("2006-01-02 15:04:05", val)
+	return t
+}
 
 type Lending struct {
 	gorm.Model
@@ -32,8 +37,8 @@ func NewLendingRow(h PoloniexLendingHistory) Lending {
 		Interest:  h.Interest,
 		Fee:       h.Fee,
 		Earned:    h.Earned,
-		Open:      helpers.ConvertPoloniexDate(h.Open),
-		Close:     helpers.ConvertPoloniexDate(h.Close),
+		Open:      convertPoloniexDate(h.Open),
+		Close:     convertPoloniexDate(h.Close),
 	}
 }
 

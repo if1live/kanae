@@ -1,4 +1,4 @@
-package reports
+package exchanges
 
 import (
 	"sort"
@@ -6,20 +6,19 @@ import (
 	"strings"
 
 	"github.com/deckarep/golang-set"
-	"github.com/if1live/kanae/histories"
-	"github.com/if1live/kanae/histories/exchanges"
+	"github.com/if1live/kanae/kanaelib"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
-type ExchangeReport struct {
+type Report struct {
 	Asset    string
 	Currency string
-	Rows     []exchanges.Exchange
+	Rows     []Exchange
 	ticker   poloniex.PoloniexTicker
 }
 
-func NewExchangeReport(asset, currency string, ticker poloniex.PoloniexTicker, rows []exchanges.Exchange) *ExchangeReport {
-	return &ExchangeReport{
+func NewReport(asset, currency string, ticker poloniex.PoloniexTicker, rows []Exchange) *Report {
+	return &Report{
 		Asset:    asset,
 		Currency: currency,
 		Rows:     rows,
@@ -27,7 +26,7 @@ func NewExchangeReport(asset, currency string, ticker poloniex.PoloniexTicker, r
 	}
 }
 
-func NewExchangeReports(tickers *histories.TickerCache, rows []exchanges.Exchange) []*ExchangeReport {
+func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) []*Report {
 	// find all asset-currency pairs
 	currencyPairSet := mapset.NewSet()
 	for _, e := range rows {
@@ -45,25 +44,25 @@ func NewExchangeReports(tickers *histories.TickerCache, rows []exchanges.Exchang
 	sort.Strings(currencyPairs)
 
 	// generate reports
-	reports := make([]*ExchangeReport, len(currencyPairs))
+	reports := make([]*Report, len(currencyPairs))
 	for i, currencyPair := range currencyPairs {
 		tokens := strings.Split(currencyPair, "_")
 		asset := tokens[0]
 		currency := tokens[1]
 
-		selected := []exchanges.Exchange{}
+		selected := []Exchange{}
 		for _, r := range rows {
 			if r.Asset == asset && r.Currency == currency {
 				selected = append(selected, r)
 			}
 		}
 		ticker, _ := tickers.Get(asset, currency)
-		reports[i] = NewExchangeReport(asset, currency, ticker, selected)
+		reports[i] = NewReport(asset, currency, ticker, selected)
 	}
 	return reports
 }
 
-func (r *ExchangeReport) CurrentAsset() float64 {
+func (r *Report) CurrentAsset() float64 {
 	var total float64
 	total += r.TotalAssetBuys()
 	total -= r.TotalAssetSells()
@@ -73,54 +72,71 @@ func (r *ExchangeReport) CurrentAsset() float64 {
 	return total
 }
 
-func (r *ExchangeReport) EquivalentCurrency() float64 {
+func (r *Report) EquivalentCurrency() float64 {
 	asset := r.CurrentAsset()
 	rate := r.ticker.Last
 	return asset * rate
 }
 
-func (r *ExchangeReport) ProfitLoss() float64 {
+func (r *Report) ProfitLoss() float64 {
 	var total float64
 	for _, r := range r.Rows {
 		switch r.Type {
-		case exchanges.ExchangeBuy:
+		case ExchangeBuy:
 			total -= r.MyTotal()
-		case exchanges.ExchangeSell:
+		case ExchangeSell:
 			total += r.MyTotal()
 		}
 	}
 	return total
 }
 
-func (r *ExchangeReport) TotalAssetBuys() float64 {
+func (r *Report) TotalAssetBuys() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == exchanges.ExchangeBuy {
+		if r.Type == ExchangeBuy {
 			total += r.MyAmount()
 		}
 	}
 	return total
 }
-func (r *ExchangeReport) TotalAssetSells() float64 {
+func (r *Report) TotalAssetSells() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == exchanges.ExchangeSell {
+		if r.Type == ExchangeSell {
 			total += r.Amount
 		}
 	}
 	return total
 }
 
-func (r *ExchangeReport) TotalCurrencyBuys() float64 {
+func (r *Report) TotalCurrencyBuys() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == exchanges.ExchangeBuy {
+		if r.Type == ExchangeBuy {
 			total += r.MyTotal()
 		}
 	}
 	return total
 }
 
-func (r *ExchangeReport) EarningRate() float64 {
+func (r *Report) EarningRate() float64 {
 	return r.ProfitLoss() / r.TotalCurrencyBuys() * 100
+}
+
+type ClosedSummaryReport struct {
+	reports []*Report
+}
+
+func NewClosedSummaryReport(rs []*Report) *ClosedSummaryReport {
+	return &ClosedSummaryReport{
+		reports: rs,
+	}
+}
+func (r *ClosedSummaryReport) ProfitLoss() float64 {
+	var total float64
+	for _, r := range r.reports {
+		total += r.ProfitLoss()
+	}
+	return total
 }
