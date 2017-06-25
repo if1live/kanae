@@ -1,4 +1,4 @@
-package histories
+package exchanges
 
 import (
 	"sort"
@@ -6,24 +6,24 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type TradeView struct {
+type View struct {
 	db *gorm.DB
 }
 
-func NewTradeView(db *gorm.DB) *TradeView {
-	return &TradeView{
+func NewView(db *gorm.DB) *View {
+	return &View{
 		db: db,
 	}
 }
 
-func (q *TradeView) All(asset, currency string) []TradeRow {
-	var rows []TradeRow
+func (q *View) All(asset, currency string) []Exchange {
+	var rows []Exchange
 	q.db.Where("asset = ? and currency = ?", asset, currency).Order("date desc").Find(&rows)
 	return rows
 }
 
-func (v *TradeView) UsedAssets(currency string) []string {
-	var rows []TradeRow
+func (v *View) UsedAssets(currency string) []string {
+	var rows []Exchange
 	v.db.Where("currency = ?", currency).Select("DISTINCT(asset)").Find(&rows)
 
 	assets := []string{}

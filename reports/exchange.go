@@ -1,66 +1,66 @@
 package reports
 
 import (
-	"github.com/if1live/kanae/histories"
+	"github.com/if1live/kanae/histories/exchanges"
 	"github.com/if1live/kanae/kanaelib"
 )
 
-type TradeReport struct {
+type ExchangeReport struct {
 	Asset    string
 	Currency string
-	Rows     []histories.TradeRow
+	Rows     []exchanges.Exchange
 }
 
-func NewTradeReport(asset, currency string, rows []histories.TradeRow) TradeReport {
-	return TradeReport{
+func NewExchangeReport(asset, currency string, rows []exchanges.Exchange) ExchangeReport {
+	return ExchangeReport{
 		Asset:    asset,
 		Currency: currency,
 		Rows:     rows,
 	}
 }
 
-func (r *TradeReport) CurrentAsset() float64 {
+func (r *ExchangeReport) CurrentAsset() float64 {
 	var total float64
 	total += r.TotalAssetBuys()
 	total -= r.TotalAssetSells()
 	return total
 }
-func (r *TradeReport) ProfitLoss() float64 {
+func (r *ExchangeReport) ProfitLoss() float64 {
 	var total float64
 	for _, r := range r.Rows {
 		switch r.Type {
-		case histories.TradeBuy:
+		case exchanges.ExchangeBuy:
 			total -= r.Total
-		case histories.TradeSell:
+		case exchanges.ExchangeSell:
 			total += r.Total
 		}
 	}
 	return total
 }
 
-func (r *TradeReport) TotalAssetBuys() float64 {
+func (r *ExchangeReport) TotalAssetBuys() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == histories.TradeBuy {
+		if r.Type == exchanges.ExchangeBuy {
 			total += r.MyAmount()
 		}
 	}
 	return total
 }
-func (r *TradeReport) TotalAssetSells() float64 {
+func (r *ExchangeReport) TotalAssetSells() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == histories.TradeSell {
+		if r.Type == exchanges.ExchangeSell {
 			total += r.Amount
 		}
 	}
 	return total
 }
 
-func (r *TradeReport) CurrentFixedAsset() float64 {
+func (r *ExchangeReport) CurrentFixedAsset() float64 {
 	return kanaelib.ToPoloniexFixed(r.CurrentAsset())
 }
 
-func (r *TradeReport) FixedProfitLoss() float64 {
+func (r *ExchangeReport) FixedProfitLoss() float64 {
 	return kanaelib.ToPoloniexFixed(r.ProfitLoss())
 }

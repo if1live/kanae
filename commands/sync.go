@@ -26,7 +26,7 @@ func (cmd *Sync) Execute() error {
 
 	api := cmd.settings.MakePoloniex()
 	syncs := []histories.Synchronizer{
-		db.MakeTradeSync(api),
+		db.MakeExchangeSync(api),
 		db.MakeLendingSync(api),
 		db.MakeBalanceSync(api),
 	}

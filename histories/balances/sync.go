@@ -1,4 +1,4 @@
-package histories
+package balances
 
 import (
 	"strconv"
@@ -9,19 +9,19 @@ import (
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
-type BalanceSync struct {
+type Sync struct {
 	db  *gorm.DB
 	api *poloniex.Poloniex
 }
 
-func NewBalanceSync(db *gorm.DB, api *poloniex.Poloniex) *BalanceSync {
-	return &BalanceSync{
+func NewSync(db *gorm.DB, api *poloniex.Poloniex) *Sync {
+	return &Sync{
 		db:  db,
 		api: api,
 	}
 }
 
-func (sync *BalanceSync) Sync(start, end time.Time) (int, error) {
+func (sync *Sync) Sync(start, end time.Time) (int, error) {
 	startTime := strconv.FormatInt(start.Unix(), 10)
 	endTime := strconv.FormatInt(end.Unix(), 10)
 	retval, err := sync.api.GetDepositsWithdrawals(startTime, endTime)
@@ -29,15 +29,15 @@ func (sync *BalanceSync) Sync(start, end time.Time) (int, error) {
 		return -1, err
 	}
 
-	var existRows []BalanceRow
+	var existRows []Transaction
 	sync.db.Select("transaction_id").Find(&existRows)
 	idSet := mapset.NewSet()
 	for _, r := range existRows {
 		idSet.Add(r.TransactionID)
 	}
 
-	rows := []BalanceRow{}
-	retvals := NewBalanceRows(retval)
+	rows := []Transaction{}
+	retvals := NewTransactions(retval)
 	for _, history := range retvals {
 		if idSet.Contains(history.TransactionID) {
 			continue
@@ -50,19 +50,19 @@ func (sync *BalanceSync) Sync(start, end time.Time) (int, error) {
 	return len(rows), nil
 }
 
-func (sync *BalanceSync) SyncAll() (int, error) {
+func (sync *Sync) SyncAll() (int, error) {
 	start := time.Unix(0, 0)
 	end := time.Now()
 	return sync.Sync(start, end)
 }
 
-func (sync *BalanceSync) SyncRecent() (int, error) {
+func (sync *Sync) SyncRecent() (int, error) {
 	start := sync.GetLastTime()
 	end := time.Now()
 	return sync.Sync(start, end)
 }
-func (sync *BalanceSync) GetLastTime() time.Time {
-	var last BalanceRow
+func (sync *Sync) GetLastTime() time.Time {
+	var last Transaction
 	sync.db.Order("timestamp desc").First(&last)
 	if last.ID == 0 {
 		return time.Unix(0, 0)

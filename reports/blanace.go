@@ -1,15 +1,13 @@
 package reports
 
-import (
-	"github.com/if1live/kanae/histories"
-)
+import "github.com/if1live/kanae/histories/balances"
 
 type BalanceReport struct {
 	Currency string
-	rows     []histories.BalanceRow
+	rows     []balances.Transaction
 }
 
-func NewBalanceReport(currency string, rows []histories.BalanceRow) BalanceReport {
+func NewBalanceReport(currency string, rows []balances.Transaction) BalanceReport {
 	return BalanceReport{
 		Currency: currency,
 		rows:     rows,
@@ -26,7 +24,7 @@ func (r *BalanceReport) Balance() float64 {
 func (r *BalanceReport) Deposits() float64 {
 	var total float64
 	for _, row := range r.rows {
-		if row.Type == histories.BalanceTypeDeposit {
+		if row.Type == balances.TypeDeposit {
 			total += row.Amount
 		}
 	}
@@ -36,7 +34,7 @@ func (r *BalanceReport) Deposits() float64 {
 func (r *BalanceReport) Withdrawals() float64 {
 	var total float64
 	for _, row := range r.rows {
-		if row.Type == histories.BalanceTypeWithdrawal {
+		if row.Type == balances.TypeWithdrawal {
 			total += row.Amount
 		}
 	}

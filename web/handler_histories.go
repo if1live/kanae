@@ -5,18 +5,18 @@ import (
 
 	"strings"
 
-	"github.com/if1live/kanae/histories"
+	"github.com/if1live/kanae/histories/lendings"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
 func handlerLendingHistories(w http.ResponseWriter, r *http.Request) {
 	type Response struct {
-		Histories []histories.PoloniexLendingHistory `json:"histories"`
+		Histories []lendings.PoloniexLendingHistory `json:"histories"`
 	}
 
 	q := svr.db.MakeLendingView()
 	rows := q.All("BTC")
-	histories := []histories.PoloniexLendingHistory{}
+	histories := []lendings.PoloniexLendingHistory{}
 	for _, row := range rows {
 		histories = append(histories, row.MakeHistory())
 	}
@@ -33,7 +33,7 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	asset := strings.ToUpper(r.URL.Path[len("/histories/trade/"):])
-	q := svr.db.MakeTradeView()
+	q := svr.db.MakeExchangeView()
 	rows := q.All(asset, "BTC")
 	histories := []poloniex.PoloniexAuthentictedTradeHistory{}
 	for _, row := range rows {

@@ -1,13 +1,13 @@
-{{ define "title" }}trade{{ end }}
+{{ define "title" }}exchange{{ end }}
 
 {{ define "content" }}
-<h2>trade</h2>
+<h2>exchange</h2>
 
 <p>last sync time : {{ .Sync.GetLastTime }}</p>
 
 <ul>
   {{ range .UsedAssets }}
-  <li><a href="/trade/{{ . }}">{{ . }}</a></li>
+  <li><a href="/exchange/{{ . }}">{{ . }}</a></li>
   {{ end }}
 </ul>
 

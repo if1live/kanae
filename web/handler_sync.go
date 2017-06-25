@@ -36,12 +36,12 @@ func handlerSyncBalance(w http.ResponseWriter, r *http.Request) {
 	handlerSync(w, r, sync)
 }
 
-func handlerSyncTrade(w http.ResponseWriter, r *http.Request) {
+func handlerSyncExchange(w http.ResponseWriter, r *http.Request) {
 	if ok := checkPostRequest(w, r); !ok {
 		return
 	}
 
-	sync := svr.db.MakeTradeSync(svr.api)
+	sync := svr.db.MakeExchangeSync(svr.api)
 	handlerSync(w, r, sync)
 }
 

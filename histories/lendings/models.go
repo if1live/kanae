@@ -1,12 +1,13 @@
-package histories
+package lendings
 
 import (
 	"time"
 
+	"github.com/if1live/kanae/histories/helpers"
 	"github.com/jinzhu/gorm"
 )
 
-type LendingRow struct {
+type Lending struct {
 	gorm.Model
 
 	LendingID int64     `gorm:"unique" json:"lending_id"`
@@ -21,8 +22,8 @@ type LendingRow struct {
 	Close     time.Time `json:"close"`
 }
 
-func NewLendingRow(h PoloniexLendingHistory) LendingRow {
-	return LendingRow{
+func NewLendingRow(h PoloniexLendingHistory) Lending {
+	return Lending{
 		LendingID: h.ID,
 		Currency:  h.Currency,
 		Rate:      h.Rate,
@@ -31,12 +32,12 @@ func NewLendingRow(h PoloniexLendingHistory) LendingRow {
 		Interest:  h.Interest,
 		Fee:       h.Fee,
 		Earned:    h.Earned,
-		Open:      convertPoloniexDate(h.Open),
-		Close:     convertPoloniexDate(h.Close),
+		Open:      helpers.ConvertPoloniexDate(h.Open),
+		Close:     helpers.ConvertPoloniexDate(h.Close),
 	}
 }
 
-func (r *LendingRow) MakeHistory() PoloniexLendingHistory {
+func (r *Lending) MakeHistory() PoloniexLendingHistory {
 	return PoloniexLendingHistory{
 		ID:       r.LendingID,
 		Currency: r.Currency,

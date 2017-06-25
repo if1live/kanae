@@ -6,6 +6,9 @@ import (
 	"strconv"
 
 	"github.com/if1live/kanae/histories"
+	"github.com/if1live/kanae/histories/balances"
+	"github.com/if1live/kanae/histories/exchanges"
+	"github.com/if1live/kanae/histories/lendings"
 	"github.com/if1live/kanae/kanaelib"
 	"github.com/if1live/kanae/reports"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
@@ -59,9 +62,9 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
 
 	type Context struct {
-		TradeSync   *histories.TradeSync
-		LendingSync *histories.LendingSync
-		BalanceSync *histories.BalanceSync
+		ExchangeSync *exchanges.Sync
+		LendingSync  *lendings.Sync
+		BalanceSync  *balances.Sync
 
 		BalanceReport *reports.BalanceReport
 
@@ -72,9 +75,9 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	balanceReport := reports.NewBalanceReport("BTC", balanceView.CurrencyRows("BTC"))
 
 	ctx := Context{
-		TradeSync:   svr.db.MakeTradeSync(nil),
-		LendingSync: svr.db.MakeLendingSync(nil),
-		BalanceSync: svr.db.MakeBalanceSync(nil),
+		ExchangeSync: svr.db.MakeExchangeSync(nil),
+		LendingSync:  svr.db.MakeLendingSync(nil),
+		BalanceSync:  svr.db.MakeBalanceSync(nil),
 
 		BalanceReport: &balanceReport,
 		Tickers:       svr.tickers,
@@ -95,12 +98,12 @@ func (s *Server) Run() {
 	http.HandleFunc("/", handlerIndex)
 	http.HandleFunc("/static/", handlerStatic)
 
-	http.HandleFunc("/trade/", handlerTradeDispatch)
+	http.HandleFunc("/exchange/", handlerExchangeDispatch)
 	http.HandleFunc("/lending/", handlerLending)
 	http.HandleFunc("/balance/", handlerBalance)
 
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
-	http.HandleFunc("/sync/trade", handlerSyncTrade)
+	http.HandleFunc("/sync/exchange", handlerSyncExchange)
 	http.HandleFunc("/sync/lending", handlerSyncLending)
 	http.HandleFunc("/sync/ticker", handlerSyncTicker)
 

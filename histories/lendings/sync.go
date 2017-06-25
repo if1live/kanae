@@ -1,4 +1,4 @@
-package histories
+package lendings
 
 import (
 	"strconv"
@@ -9,19 +9,19 @@ import (
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
-type LendingSync struct {
+type Sync struct {
 	db  *gorm.DB
 	api *poloniex.Poloniex
 }
 
-func NewLendingSync(db *gorm.DB, api *poloniex.Poloniex) *LendingSync {
-	return &LendingSync{
+func NewSync(db *gorm.DB, api *poloniex.Poloniex) *Sync {
+	return &Sync{
 		db:  db,
 		api: api,
 	}
 }
 
-func (sync *LendingSync) Sync(start, end time.Time) (int, error) {
+func (sync *Sync) Sync(start, end time.Time) (int, error) {
 	startTime := strconv.FormatInt(start.Unix(), 10)
 	endTime := strconv.FormatInt(end.Unix(), 10)
 	retval, err := GetLendingHistory(sync.api, startTime, endTime)
@@ -29,14 +29,14 @@ func (sync *LendingSync) Sync(start, end time.Time) (int, error) {
 		return -1, err
 	}
 
-	var existRows []LendingRow
+	var existRows []Lending
 	sync.db.Select("lending_id").Find(&existRows)
 	idSet := mapset.NewSet()
 	for _, r := range existRows {
 		idSet.Add(r.LendingID)
 	}
 
-	rows := []LendingRow{}
+	rows := []Lending{}
 	for _, history := range retval {
 		if idSet.Contains(history.ID) {
 			continue
@@ -50,20 +50,20 @@ func (sync *LendingSync) Sync(start, end time.Time) (int, error) {
 	return len(rows), nil
 }
 
-func (sync *LendingSync) SyncAll() (int, error) {
+func (sync *Sync) SyncAll() (int, error) {
 	start := time.Unix(0, 0)
 	end := time.Now()
 	return sync.Sync(start, end)
 }
 
-func (sync *LendingSync) SyncRecent() (int, error) {
+func (sync *Sync) SyncRecent() (int, error) {
 	start := sync.GetLastTime()
 	end := time.Now()
 	return sync.Sync(start, end)
 }
 
-func (sync *LendingSync) GetLastTime() time.Time {
-	var last LendingRow
+func (sync *Sync) GetLastTime() time.Time {
+	var last Lending
 	sync.db.Order("open desc").First(&last)
 	if last.ID == 0 {
 		return time.Unix(0, 0)

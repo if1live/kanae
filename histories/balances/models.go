@@ -1,4 +1,4 @@
-package histories
+package balances
 
 import (
 	"time"
@@ -8,14 +8,14 @@ import (
 )
 
 const (
-	BalanceTypeDeposit    = "deposit"
-	BalanceTypeWithdrawal = "withdrawal"
+	TypeDeposit    = "deposit"
+	TypeWithdrawal = "withdrawal"
 )
 
 // merge two struct
 // - poloniex.PoloniexDepositsWithdrawals.Deposits
 // - poloniex.PoloniexDepositsWithdrawals.Withdrawals
-type BalanceRow struct {
+type Transaction struct {
 	gorm.Model
 
 	// deposit / withdrawal
@@ -32,11 +32,11 @@ type BalanceRow struct {
 	IPAddress        string // only withdrawals
 }
 
-func NewBalanceRows(h poloniex.PoloniexDepositsWithdrawals) []BalanceRow {
-	deposits := []BalanceRow{}
+func NewTransactions(h poloniex.PoloniexDepositsWithdrawals) []Transaction {
+	deposits := []Transaction{}
 	for _, row := range h.Deposits {
-		r := BalanceRow{
-			Type:          BalanceTypeDeposit,
+		r := Transaction{
+			Type:          TypeDeposit,
 			Currency:      row.Currency,
 			Address:       row.Address,
 			Amount:        row.Amount,
@@ -48,10 +48,10 @@ func NewBalanceRows(h poloniex.PoloniexDepositsWithdrawals) []BalanceRow {
 		deposits = append(deposits, r)
 	}
 
-	withdrawals := []BalanceRow{}
+	withdrawals := []Transaction{}
 	for _, row := range h.Withdrawals {
-		r := BalanceRow{
-			Type:             BalanceTypeWithdrawal,
+		r := Transaction{
+			Type:             TypeWithdrawal,
 			WithdrawalNumber: row.WithdrawalNumber,
 			Currency:         row.Currency,
 			Address:          row.Address,
@@ -65,7 +65,7 @@ func NewBalanceRows(h poloniex.PoloniexDepositsWithdrawals) []BalanceRow {
 		withdrawals = append(withdrawals, r)
 	}
 
-	rows := []BalanceRow{}
+	rows := []Transaction{}
 	rows = append(rows, deposits...)
 	rows = append(rows, withdrawals...)
 	return rows

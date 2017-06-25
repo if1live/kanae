@@ -3,14 +3,14 @@ package web
 import (
 	"net/http"
 
-	"github.com/if1live/kanae/histories"
+	"github.com/if1live/kanae/histories/balances"
 	"github.com/if1live/kanae/reports"
 )
 
 func handlerBalance(w http.ResponseWriter, r *http.Request) {
 	type Context struct {
-		Sync   *histories.BalanceSync
-		View   *histories.BalanceView
+		Sync   *balances.Sync
+		View   *balances.View
 		Report *reports.BalanceReport
 	}
 

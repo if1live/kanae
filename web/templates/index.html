@@ -9,7 +9,7 @@
 </dl>
 
 <script>
-  var lastTradeSyncTime = new Date('{{ .TradeSync.GetLastTime }}');
+  var lastExchangeSyncTime = new Date('{{ .ExchangeSync.GetLastTime }}');
   var lastLendingSyncTime = new Date('{{ .LendingSync.GetLastTime }}');
   var lastBalanceSyncTime = new Date('{{ .BalanceSync.GetLastTime }}');
 </script>
@@ -22,9 +22,9 @@
 </div>
 
 <div>
-  last trade sync : {{ .TradeSync.GetLastTime }}
+  last trade sync : {{ .ExchangeSync.GetLastTime }}
   <br/>
-  <button type="button" class="pure-button btn-sync-trade">sync trade</button>
+  <button type="button" class="pure-button btn-sync-exchange">sync exchange</button>
 </div>
 
 <div>

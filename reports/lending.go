@@ -1,14 +1,12 @@
 package reports
 
-import (
-	"github.com/if1live/kanae/histories"
-)
+import "github.com/if1live/kanae/histories/lendings"
 
 type LendingReport struct {
-	rows []histories.LendingRow
+	rows []lendings.Lending
 }
 
-func NewLendingReport(rows []histories.LendingRow) LendingReport {
+func NewLendingReport(rows []lendings.Lending) LendingReport {
 	return LendingReport{
 		rows: rows,
 	}

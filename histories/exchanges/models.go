@@ -1,19 +1,20 @@
-package histories
+package exchanges
 
 import (
 	"time"
 
+	"github.com/if1live/kanae/histories/helpers"
 	"github.com/jinzhu/gorm"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
 const (
-	TradeSell = "sell"
-	TradeBuy  = "buy"
+	ExchangeSell = "sell"
+	ExchangeBuy  = "buy"
 )
 
 // PoloniexAuthenticatedTradeHistory
-type TradeRow struct {
+type Exchange struct {
 	gorm.Model
 
 	// from zenbot format
@@ -34,14 +35,14 @@ type TradeRow struct {
 	Category      string
 }
 
-func NewTradeRow(asset, currency string, h poloniex.PoloniexAuthentictedTradeHistory) TradeRow {
-	return TradeRow{
+func NewExchange(asset, currency string, h poloniex.PoloniexAuthentictedTradeHistory) Exchange {
+	return Exchange{
 		Asset:    asset,
 		Currency: currency,
 
 		GlobalTradeID: h.GlobalTradeID,
 		TradeID:       h.TradeID,
-		Date:          convertPoloniexDate(h.Date),
+		Date:          helpers.ConvertPoloniexDate(h.Date),
 		Rate:          h.Rate,
 		Amount:        h.Amount,
 		Total:         h.Total,
@@ -52,7 +53,7 @@ func NewTradeRow(asset, currency string, h poloniex.PoloniexAuthentictedTradeHis
 	}
 }
 
-func (r *TradeRow) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
+func (r *Exchange) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
 	return poloniex.PoloniexAuthentictedTradeHistory{
 		GlobalTradeID: r.GlobalTradeID,
 		TradeID:       r.TradeID,
@@ -67,11 +68,11 @@ func (r *TradeRow) MakeHistory() poloniex.PoloniexAuthentictedTradeHistory {
 	}
 }
 
-func (r *TradeRow) FeeAmount() float64 {
+func (r *Exchange) FeeAmount() float64 {
 	switch r.Type {
-	case TradeBuy:
+	case ExchangeBuy:
 		return r.buyFeeAmount()
-	case TradeSell:
+	case ExchangeSell:
 		return r.sellFeeAmount()
 	}
 	return -1
@@ -85,7 +86,7 @@ func (r *TradeRow) FeeAmount() float64 {
 // total in poloniex : 0.01084103 BTC
 // 0.00001629 BTC = 0.01085732 BTC * (0.01) * (0.15)
 // fee amount = (total in db) * fee
-func (r *TradeRow) sellFeeAmount() float64 {
+func (r *Exchange) sellFeeAmount() float64 {
 	return r.Total * r.Fee
 }
 
@@ -95,24 +96,24 @@ func (r *TradeRow) sellFeeAmount() float64 {
 // total : 0.00094368 BTC
 // 0.03250935 SYS = 13.00373802 SYS * (0.01) * (0.25)
 // fee amount = amount * fee
-func (r *TradeRow) buyFeeAmount() float64 {
+func (r *Exchange) buyFeeAmount() float64 {
 	return r.Amount * r.Fee
 }
 
-func (r *TradeRow) MyTotal() float64 {
+func (r *Exchange) MyTotal() float64 {
 	switch r.Type {
-	case TradeBuy:
+	case ExchangeBuy:
 		return r.Total
-	case TradeSell:
+	case ExchangeSell:
 		return r.Total - r.FeeAmount()
 	}
 	return -1
 }
-func (r *TradeRow) MyAmount() float64 {
+func (r *Exchange) MyAmount() float64 {
 	switch r.Type {
-	case TradeBuy:
+	case ExchangeBuy:
 		return r.Amount - r.FeeAmount()
-	case TradeSell:
+	case ExchangeSell:
 		return r.Amount
 	}
 	return -1

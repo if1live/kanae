@@ -1,4 +1,4 @@
-package histories
+package exchanges
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 	"github.com/if1live/kanae/kanaelib"
 )
 
-func Test_TradeRow_buyFeeAmount(t *testing.T) {
+func TestRow_buyFeeAmount(t *testing.T) {
 	// buy example
 	// amount : 13.00373802
 	// fee : 0.03250935 SYS (0.25%)
@@ -26,7 +26,7 @@ func Test_TradeRow_buyFeeAmount(t *testing.T) {
 	for _, c := range cases {
 		amount, _ := strconv.ParseFloat(c.amountStr, 64)
 		fee, _ := strconv.ParseFloat(c.feeStr, 64)
-		r := TradeRow{
+		r := Exchange{
 			Amount: amount,
 			Fee:    fee * float64(0.01),
 		}
@@ -35,7 +35,7 @@ func Test_TradeRow_buyFeeAmount(t *testing.T) {
 	}
 }
 
-func Test_TradeRow_sellFeeAmount(t *testing.T) {
+func TestRow_sellFeeAmount(t *testing.T) {
 	cases := []struct {
 		totalStr     string
 		feeStr       string
@@ -46,7 +46,7 @@ func Test_TradeRow_sellFeeAmount(t *testing.T) {
 	for _, c := range cases {
 		total, _ := strconv.ParseFloat(c.totalStr, 64)
 		fee, _ := strconv.ParseFloat(c.feeStr, 64)
-		r := TradeRow{
+		r := Exchange{
 			Total: total,
 			Fee:   fee * float64(0.01),
 		}
