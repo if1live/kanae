@@ -41,8 +41,9 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 
 func makeFuncMap() template.FuncMap {
 	fmap := template.FuncMap{
-		"title": strings.Title,
-		"upper": strings.ToUpper,
+		"title":    strings.Title,
+		"upper":    strings.ToUpper,
+		"floatstr": kanaelib.ToFloatStr,
 	}
 	return fmap
 }

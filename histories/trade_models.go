@@ -3,7 +3,6 @@ package histories
 import (
 	"time"
 
-	"github.com/if1live/kanae/kanaelib"
 	"github.com/jinzhu/gorm"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
@@ -117,20 +116,4 @@ func (r *TradeRow) MyAmount() float64 {
 		return r.Amount
 	}
 	return -1
-}
-
-func (r *TradeRow) AmountStr() string {
-	return kanaelib.ToFloatStr(r.Amount)
-}
-
-func (r *TradeRow) FeeAmountStr() string {
-	return kanaelib.ToFloatStr(r.FeeAmount())
-}
-
-func (r *TradeRow) MyAmountStr() string {
-	return kanaelib.ToFloatStr(r.MyAmount())
-}
-
-func (r *TradeRow) RateStr() string {
-	return kanaelib.ToFloatStr(r.Rate)
 }

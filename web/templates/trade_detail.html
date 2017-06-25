@@ -15,33 +15,33 @@
   <dd>{{ .TickerUpdatedAt }}</dd>
 
   <dt>last</dt>
-  <dd>{{ .Ticker.Last }}</dd>
+  <dd>{{ .Ticker.Last|floatstr }}</dd>
   <dt>lowest ask</dt>
-  <dd>{{ .Ticker.LowestAsk }}</dd>
+  <dd>{{ .Ticker.LowestAsk|floatstr }}</dd>
   <dt>highest bid</dt>
-  <dd>{{ .Ticker.HighestBid }}</dd>
+  <dd>{{ .Ticker.HighestBid|floatstr }}</dd>
 	<dt>percent change</dt>
   <dd>{{ .Ticker.PercentChange }}</dd>
   <dt>base volume</dt>
 	<dd>{{ .Ticker.BaseVolume }}</dd>
 	<dt>quote volume</dt>
-  <dd>{{ .Ticker.QuoteVolume }}</dd>
+  <dd>{{ .Ticker.QuoteVolume|floatstr }}</dd>
 	<dt>is frozen</dt>
   <dd>{{ .Ticker.IsFrozen }}</dd>
 	<dt>high 24hr</dt>
-  <dd>{{ .Ticker.High24Hr }}</dd>
+  <dd>{{ .Ticker.High24Hr|floatstr }}</dd>
 	<dt>low 24hr</dt>
-  <dd>{{ .Ticker.Low24Hr }}</dd>
+  <dd>{{ .Ticker.Low24Hr|floatstr }}</dd>
 </dl>
 
 <h3>balance</h3>
 <dl>
   <dt>balance</dt>
-  <dd>{{ .Report.CurrentAsset }}</dd>
+  <dd>{{ .Report.CurrentAsset|floatstr }}</dd>
   <dt>total buys</dt>
-  <dd>{{ .Report.TotalAssetBuys }}</dd>
+  <dd>{{ .Report.TotalAssetBuys|floatstr }}</dd>
   <dt>total sells</dt>
-  <dd>{{ .Report.TotalAssetSells }}</dd>
+  <dd>{{ .Report.TotalAssetSells|floatstr }}</dd>
 </dl>
 
 <table class="pure-table pure-table-horizontal">
@@ -59,16 +59,16 @@
     {{ range .Report.Rows }}
     <tr>
       <td>{{ .Type }}</td>
-      <td>{{ .RateStr }}</td>
-      <td>{{ .AmountStr }}</td>
+      <td>{{ .Rate|floatstr }}</td>
+      <td>{{ .Amount|floatstr }}</td>
       <td>
         {{ if (eq .Type "sell") }}
-        {{ .FeeAmountStr }} BTC
+        {{ .FeeAmount|floatstr }} BTC
         {{ else }}
-        {{ .FeeAmountStr }} {{ .Asset }}
+        {{ .FeeAmount|floatstr }} {{ .Asset }}
         {{ end }}
       </td>
-      <td>{{ .MyAmountStr }}</td>
+      <td>{{ .MyAmount|floatstr }}</td>
       <td>{{ .Total }} BTC</td>
     </tr>
   {{ end }}

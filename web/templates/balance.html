@@ -8,12 +8,12 @@
   <dd>{{ .Sync.GetLastTime }}</dd>
 
   <dt>currency balance</dt>
-  <dd>{{ .Report.Balance }}</dd>
+  <dd>{{ .Report.Balance|floatstr }}</dd>
 
   <dt>total deposits</dt>
-  <dd>{{ .Report.Deposits }}</dd>
+  <dd>{{ .Report.Deposits|floatstr }}</dd>
 
   <dt>total withdrawals</dt>
-  <dd>{{ .Report.Withdrawals }}</dd>
+  <dd>{{ .Report.Withdrawals|floatstr }}</dd>
 </dl>
 {{ end }}
