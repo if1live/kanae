@@ -42,6 +42,8 @@ func TestRow_sellFeeAmount(t *testing.T) {
 		feeAmountStr string
 	}{
 		{"0.01085732", "0.15", "0.00001629"},
+		// trade id: 170322632
+		{"0.01068353", "0.25", "0.00002671"},
 	}
 	for _, c := range cases {
 		total, _ := strconv.ParseFloat(c.totalStr, 64)
@@ -52,5 +54,28 @@ func TestRow_sellFeeAmount(t *testing.T) {
 		}
 		v := r.sellFeeAmount()
 		assert.Equal(t, c.feeAmountStr, kanaelib.ToFloatStr(v))
+	}
+}
+
+func TestRow_MyTotal(t *testing.T) {
+	cases := []struct {
+		typeStr    string
+		totalStr   string
+		feeStr     string
+		myTotalStr string
+	}{
+		// trade id: 170322632
+		{"sell", "0.01068353", "0.25", "0.01065682"},
+	}
+	for _, c := range cases {
+		total, _ := strconv.ParseFloat(c.totalStr, 64)
+		fee, _ := strconv.ParseFloat(c.feeStr, 64)
+		r := Exchange{
+			Type:  c.typeStr,
+			Total: total,
+			Fee:   fee * float64(0.01),
+		}
+		v := r.MyTotal()
+		assert.Equal(t, c.myTotalStr, kanaelib.ToFloatStr(v))
 	}
 }

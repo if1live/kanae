@@ -16,9 +16,15 @@ func NewView(db *gorm.DB) *View {
 	}
 }
 
-func (q *View) All(asset, currency string) []Exchange {
+func (q *View) Get(asset, currency string) []Exchange {
 	var rows []Exchange
 	q.db.Where("asset = ? and currency = ?", asset, currency).Order("date desc").Find(&rows)
+	return rows
+}
+
+func (v *View) All() []Exchange {
+	var rows []Exchange
+	v.db.Order("date desc").Find(&rows)
 	return rows
 }
 

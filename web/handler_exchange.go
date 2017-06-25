@@ -24,17 +24,33 @@ func handlerExchangeIndex(w http.ResponseWriter, r *http.Request) {
 		Sync *exchanges.Sync
 		View *exchanges.View
 
-		UsedAssets []string
+		OpenedReports []*reports.ExchangeReport
+		ClosedReports []*reports.ExchangeReport
 	}
 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
-	usedAssets := view.UsedAssets("BTC")
+
+	rs := reports.NewExchangeReports(view.All())
+	for _, r := range rs {
+		r.Ticker, _ = svr.tickers.Get(r.Asset, r.Currency)
+	}
+
+	opens := []*reports.ExchangeReport{}
+	closes := []*reports.ExchangeReport{}
+	for _, r := range rs {
+		if r.CurrentAsset() == 0 {
+			closes = append(closes, r)
+		} else {
+			opens = append(opens, r)
+		}
+	}
 
 	ctx := Context{
-		Sync:       sync,
-		View:       view,
-		UsedAssets: usedAssets,
+		Sync:          sync,
+		View:          view,
+		OpenedReports: opens,
+		ClosedReports: closes,
 	}
 	err := renderLayoutTemplate(w, "layout.html", "exchange_index.html", ctx)
 	if err != nil {
@@ -63,13 +79,13 @@ func handlerExchangeAsset(w http.ResponseWriter, r *http.Request, asset string) 
 
 	sync := svr.db.MakeExchangeSync(nil)
 	view := svr.db.MakeExchangeView()
-	histories := view.All(asset, "BTC")
+	histories := view.Get(asset, "BTC")
 	report := reports.NewExchangeReport(asset, "BTC", histories)
 	ctx := Context{
 		Asset:           asset,
 		Sync:            sync,
 		View:            view,
-		Report:          &report,
+		Report:          report,
 		Ticker:          ticker,
 		TickerUpdatedAt: svr.tickers.UpdatedAt,
 	}

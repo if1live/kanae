@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 
 	"errors"
@@ -44,6 +45,9 @@ func makeFuncMap() template.FuncMap {
 		"title":    strings.Title,
 		"upper":    strings.ToUpper,
 		"floatstr": kanaelib.ToFloatStr,
+		"floatprec": func(prec int, num float64) string {
+			return strconv.FormatFloat(num, 'f', prec, 64)
+		},
 	}
 	return fmap
 }

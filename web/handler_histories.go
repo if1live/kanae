@@ -34,7 +34,7 @@ func handlerTradeHistories(w http.ResponseWriter, r *http.Request) {
 
 	asset := strings.ToUpper(r.URL.Path[len("/histories/trade/"):])
 	q := svr.db.MakeExchangeView()
-	rows := q.All(asset, "BTC")
+	rows := q.Get(asset, "BTC")
 	histories := []poloniex.PoloniexAuthentictedTradeHistory{}
 	for _, row := range rows {
 		histories = append(histories, row.MakeHistory())

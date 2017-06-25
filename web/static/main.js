@@ -14,17 +14,30 @@ function sync(el, url, type) {
   });
 }
 
-document.querySelector('.btn-sync-ticker').onclick = function(evt) {
-  sync(this, '/sync/ticker', 'ticker');
-}
-document.querySelector('.btn-sync-exchange').onclick = function (evt) {
-  sync(this, '/sync/exchange', 'exchange');
-}
-
-document.querySelector('.btn-sync-lending').onclick = function (evt) {
-  sync(this, '/sync/lending', 'lending');
+var tickerButton = document.querySelector('.btn-sync-ticker');
+if(tickerButton) {
+  tickerButton.onclick = function(evt) {
+    sync(this, '/sync/ticker', 'ticker');
+  }
 }
 
-document.querySelector('.btn-sync-balance').onclick = function (evt) {
-  sync(this, '/sync/balance', 'balance');
+var exchangeButton = document.querySelector('.btn-sync-exchange');
+if(exchangeButton) {
+  exchangeButton.onclick = function (evt) {
+    sync(this, '/sync/exchange', 'exchange');
+  }
+}
+
+var lendingButton = document.querySelector('.btn-sync-lending');
+if(lendingButton) {
+  lendingButton.onclick = function (evt) {
+    sync(this, '/sync/lending', 'lending');
+  }
+}
+
+var balanceButton = document.querySelector('.btn-sync-balance');
+if(balanceButton) {
+  balanceButton.onclick = function (evt) {
+    sync(this, '/sync/balance', 'balance');
+  }
 }

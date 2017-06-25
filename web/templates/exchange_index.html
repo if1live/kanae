@@ -5,34 +5,45 @@
 
 <p>last sync time : {{ .Sync.GetLastTime }}</p>
 
-<ul>
-  {{ range .UsedAssets }}
-  <li><a href="/exchange/{{ . }}">{{ . }}</a></li>
-  {{ end }}
-</ul>
-
-{{/*
+<h3>opened assets</h3>
 <table class="pure-table pure-table-horizontal">
   <thead>
     <tr>
       <th>asset</th>
       <th>amount</th>
-      <th>total buys</th>
-      <th>total sells</th>
-      <th>profit/loss</th>
+      <th>eq. btc</th>
     </tr>
   </thead>
   <tbody>
-  {{ range .Reports }}
-    <tr>
-      <td>{{ .Asset }}</td>
-      <td>{{ .CurrentFixedAsset }}</td>
-      <td>{{ .TotalBuyAsset }}</td>
-      <td>{{ .TotalSellAsset }}</td>
-      <td>{{ .FixedProfitLoss }}</td>
-    </tr>
+  {{ range .OpenedReports }}
+  <tr>
+    <td><a href="/exchange/{{ .Asset }}">{{ .Asset }}<a></td>
+    <td>{{ .CurrentAsset|floatstr }}</td>
+    <td>{{ .EquivalentCurrency|floatstr }}</td>
+  </tr>
   {{ end }}
   </tbody>
 </table>
-*/}}
+
+<h3>closed assets</h3>
+<table class="pure-table pure-table-horizontal">
+  <thead>
+    <tr>
+      <th>asset</th>
+      <th>profit/loss</th>
+      <th>earning rate</th>
+      <th>input btc</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{ range .ClosedReports }}
+  <tr>
+    <td><a href="/exchange/{{ .Asset }}">{{ .Asset }}</a></td>
+    <td>{{ .ProfitLoss|floatstr }}</td>
+    <td>{{ .EarningRate|floatprec 2 }}%</td>
+    <td>{{ .TotalCurrencyBuys|floatstr }}</td>
+  </tr>
+  {{ end }}
+  </tbody>
+</table>
 {{ end }}
