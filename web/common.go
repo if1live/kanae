@@ -48,6 +48,22 @@ func renderTemplate(w http.ResponseWriter, tplfile string, ctx interface{}) {
 	}
 }
 
+func renderLayoutTemplate(w http.ResponseWriter, tplfile string, v interface{}) {
+	basePath := kanaelib.GetExecutablePath()
+	lp := path.Join(basePath, "web", "templates", "layout.html")
+	fp := path.Join(basePath, "web", "templates", tplfile)
+
+	tpl, err := template.ParseFiles(lp, fp)
+	if err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	if err := tpl.Execute(w, v); err != nil {
+		renderErrorJSON(w, err, http.StatusInternalServerError)
+	}
+}
+
 func renderStatic(w http.ResponseWriter, r *http.Request, target string) {
 	cleaned := path.Clean(target)
 	basePath := kanaelib.GetExecutablePath()

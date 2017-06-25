@@ -28,3 +28,8 @@ func ToFixed(num float64, precision int) float64 {
 	output := math.Pow(10, float64(precision))
 	return float64(round(num*output)) / output
 }
+
+func ToPoloniexFixed(num float64) float64 {
+	prec := 8
+	return ToFixed(num, prec)
+}

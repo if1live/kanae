@@ -30,9 +30,9 @@ func (r *TradeReport) ProfitLoss() float64 {
 	var total float64
 	for _, r := range r.Rows {
 		switch r.Type {
-		case "buy":
+		case histories.TradeBuy:
 			total -= r.Total
-		case "sell":
+		case histories.TradeSell:
 			total += r.Total
 		}
 	}
@@ -42,7 +42,7 @@ func (r *TradeReport) ProfitLoss() float64 {
 func (r *TradeReport) TotalBuyAsset() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == "buy" {
+		if r.Type == histories.TradeBuy {
 			total += r.MyAmount()
 		}
 	}
@@ -51,7 +51,7 @@ func (r *TradeReport) TotalBuyAsset() float64 {
 func (r *TradeReport) TotalSellAsset() float64 {
 	var total float64
 	for _, r := range r.Rows {
-		if r.Type == "sell" {
+		if r.Type == histories.TradeSell {
 			total += r.Amount
 		}
 	}
@@ -59,11 +59,11 @@ func (r *TradeReport) TotalSellAsset() float64 {
 }
 
 func (r *TradeReport) CurrentFixedAsset() float64 {
-	return kanaelib.ToFixed(r.CurrentAsset(), 8)
+	return kanaelib.ToPoloniexFixed(r.CurrentAsset())
 }
 
 func (r *TradeReport) FixedProfitLoss() float64 {
-	return kanaelib.ToFixed(r.ProfitLoss(), 8)
+	return kanaelib.ToPoloniexFixed(r.ProfitLoss())
 }
 
 type CurrencyState struct {

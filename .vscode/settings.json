@@ -1,0 +1,20 @@
+// 설정을 이 파일에 넣어서 기본 설정과 사용자 설정을 덮어씁니다.
+{
+    "go.formatOnSave": true,
+
+    "go.autocompleteUnimportedPackages": true,
+
+    "go.buildOnSave": "package",
+
+    "go.lintOnSave": "package",
+    "go.lintTool": "gometalinter",
+    "go.lintFlags": [
+        "--disable-all",
+        "--enable=errcheck"
+    ],
+
+    "go.liveErrors": {
+        "enabled": false,
+        "delay": 500
+    }
+}

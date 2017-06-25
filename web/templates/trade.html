@@ -1,0 +1,30 @@
+{{ define "title" }}trade{{ end }}
+
+{{ define "content" }}
+<h2>trade</h2>
+
+<p>last sync time : {{ .Sync.GetLastTime }}</p>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>asset</th>
+      <th>amount</th>
+      <th>total buys</th>
+      <th>total sells</th>
+      <th>profit/loss</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{ range .Reports }}
+    <tr>
+      <td>{{ .Asset }}</td>
+      <td>{{ .CurrentFixedAsset }}</td>
+      <td>{{ .TotalBuyAsset }}</td>
+      <td>{{ .TotalSellAsset }}</td>
+      <td>{{ .FixedProfitLoss }}</td>
+    </tr>
+  {{ end }}
+  </tbody>
+</table>
+{{ end }}

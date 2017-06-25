@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
-	"github.com/if1live/kanae/reports"
+	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
+
+/*
+reference
+http://www.alexedwards.net/blog/golang-response-snippets
+*/
 
 type Server struct {
 	addr string
@@ -22,6 +26,7 @@ type Server struct {
 // only one web server exist
 var svr *Server
 var db *histories.Database
+var api *poloniex.Poloniex
 
 func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	if svr != nil {
@@ -35,6 +40,8 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 	}
 	db = &dbobj
 
+	api = s.MakePoloniex()
+
 	svr = &Server{
 		addr:     addr,
 		port:     port,
@@ -46,39 +53,9 @@ func NewServer(addr string, port int, s kanaelib.Settings) *Server {
 func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "hello world : %s", r.URL.Path[1:])
 	type Context struct {
-		LastTradeSyncTime   time.Time
-		LastLendingSyncTime time.Time
-		LastBalanceSyncTime time.Time
-
-		LendingHistories []histories.LendingRow
-
-		TradeUsedAssets []string
-		TradeReports    []reports.TradeReport
 	}
-
-	tradeSync := db.MakeTradeSync(nil)
-	lendingSync := db.MakeLendingSync(nil)
-	balanceSync := db.MakeBalanceSync(nil)
-
-	tradeView := db.MakeTradeView()
-
-	tradeReports := []reports.TradeReport{}
-	usedAssets := tradeView.UsedAssets("BTC")
-	for _, asset := range usedAssets {
-		histories := tradeView.All(asset, "BTC")
-		report := reports.NewTradeReport(asset, "BTC", histories)
-		tradeReports = append(tradeReports, report)
-	}
-
-	ctx := Context{
-		LastTradeSyncTime:   tradeSync.GetLastTime(),
-		LastLendingSyncTime: lendingSync.GetLastTime(),
-		LastBalanceSyncTime: balanceSync.GetLastTime(),
-
-		TradeReports:    tradeReports,
-		TradeUsedAssets: usedAssets,
-	}
-	renderTemplate(w, "index.html", ctx)
+	ctx := Context{}
+	renderLayoutTemplate(w, "index.html", ctx)
 }
 
 func handlerStatic(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +66,10 @@ func handlerStatic(w http.ResponseWriter, r *http.Request) {
 func (s *Server) Run() {
 	http.HandleFunc("/", handlerIndex)
 	http.HandleFunc("/static/", handlerStatic)
+	http.HandleFunc("/trade/", handlerTradeIndex)
+	http.HandleFunc("/lending/", handlerLending)
 
+	http.HandleFunc("/sync/", handlerSyncPage)
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
 	http.HandleFunc("/sync/trade", handlerSyncTrade)
 	http.HandleFunc("/sync/lending", handlerSyncLending)

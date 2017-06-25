@@ -8,6 +8,11 @@ import (
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
+const (
+	TradeSell = "sell"
+	TradeBuy  = "buy"
+)
+
 // PoloniexAuthenticatedTradeHistory
 type TradeRow struct {
 	gorm.Model
@@ -68,7 +73,7 @@ func (r *TradeRow) FeeAmount() float64 {
 	return fee
 }
 func (r *TradeRow) FixedFeeAmount() float64 {
-	return kanaelib.ToFixed(r.FeeAmount(), 8)
+	return kanaelib.ToPoloniexFixed(r.FeeAmount())
 }
 
 func (r *TradeRow) MyAmount() float64 {
