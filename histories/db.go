@@ -47,3 +47,7 @@ func (d *Database) MakeTradeView() *TradeView {
 func (d *Database) MakeLendingView() *LendingView {
 	return NewLendingView(d.db)
 }
+
+func (d *Database) MakeBalanceView() *BalanceView {
+	return NewBalanceView(d.db)
+}

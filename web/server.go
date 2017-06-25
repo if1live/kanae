@@ -7,6 +7,7 @@ import (
 
 	"github.com/if1live/kanae/histories"
 	"github.com/if1live/kanae/kanaelib"
+	"github.com/if1live/kanae/reports"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
@@ -57,12 +58,19 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		TradeSync   *histories.TradeSync
 		LendingSync *histories.LendingSync
 		BalanceSync *histories.BalanceSync
+
+		BalanceReport *reports.BalanceReport
 	}
+
+	balanceView := db.MakeBalanceView()
+	balanceReport := reports.NewBalanceReport("BTC", balanceView.CurrencyRows("BTC"))
 
 	ctx := Context{
 		TradeSync:   db.MakeTradeSync(nil),
 		LendingSync: db.MakeLendingSync(nil),
 		BalanceSync: db.MakeBalanceSync(nil),
+
+		BalanceReport: &balanceReport,
 	}
 
 	renderLayoutTemplate(w, "index.html", ctx)
@@ -78,6 +86,7 @@ func (s *Server) Run() {
 	http.HandleFunc("/static/", handlerStatic)
 	http.HandleFunc("/trade/", handlerTradeIndex)
 	http.HandleFunc("/lending/", handlerLending)
+	http.HandleFunc("/balance/", handlerBalance)
 
 	http.HandleFunc("/sync/balance", handlerSyncBalance)
 	http.HandleFunc("/sync/trade", handlerSyncTrade)

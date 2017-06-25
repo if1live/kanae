@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	BalanceDeposit    = "deposit"
-	BalanceWithdrawal = "withdrawal"
+	BalanceTypeDeposit    = "deposit"
+	BalanceTypeWithdrawal = "withdrawal"
 )
 
 // merge two struct
@@ -36,7 +36,7 @@ func NewBalanceRows(h poloniex.PoloniexDepositsWithdrawals) []BalanceRow {
 	deposits := []BalanceRow{}
 	for _, row := range h.Deposits {
 		r := BalanceRow{
-			Type:          BalanceDeposit,
+			Type:          BalanceTypeDeposit,
 			Currency:      row.Currency,
 			Address:       row.Address,
 			Amount:        row.Amount,
@@ -51,7 +51,7 @@ func NewBalanceRows(h poloniex.PoloniexDepositsWithdrawals) []BalanceRow {
 	withdrawals := []BalanceRow{}
 	for _, row := range h.Withdrawals {
 		r := BalanceRow{
-			Type:             BalanceWithdrawal,
+			Type:             BalanceTypeWithdrawal,
 			WithdrawalNumber: row.WithdrawalNumber,
 			Currency:         row.Currency,
 			Address:          row.Address,

@@ -1,0 +1,19 @@
+{{ define "title" }}Balance{{ end }}
+
+{{ define "content" }}
+<h2>balance</h2>
+
+<dl>
+  <dt>last sync time</dt>
+  <dd>{{ .Sync.GetLastTime }}</dd>
+
+  <dt>currency balance</dt>
+  <dd>{{ .Report.Balance }}</dd>
+
+  <dt>total deposits</dt>
+  <dd>{{ .Report.Deposits }}</dd>
+
+  <dt>total withdrawals</dt>
+  <dd>{{ .Report.Withdrawals }}</dd>
+</dl>
+{{ end }}

@@ -1,7 +1,12 @@
 {{ define "title"}}Kanae{{ end }}
 
 {{ define "content" }}
-<h2>summary<h2>
+<h2>summary</h2>
+
+<dl>
+  <dt>deposits - balances</dt>
+  <dd>{{ .BalanceReport.Balance }}</dd>
+</dl>
 
 <script>
   var lastTradeSyncTime = new Date('{{ .TradeSync.GetLastTime }}');
