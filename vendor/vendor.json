@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "k3XVt/wRXuIKuo/68H6kBN+SfNM=",
+			"path": "github.com/thrasher-/gocryptotrader/exchanges/poloniex",
+			"revision": "2982918615c4d04492e4da77a06391c44296e783",
+			"revisionTime": "2017-06-24T09:01:21Z"
+		}
+	],
+	"rootPath": "github.com/if1live/kanae"
+}

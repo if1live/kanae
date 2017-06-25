@@ -10,17 +10,7 @@ go:
   - tip
 
 before_install:
-  # use my go library
-  - go get -v github.com/thrasher-/gocryptotrader
-  - cd $GOPATH/src/github.com/thrasher-/gocryptotrader
-  - git remote add custom https://github.com/if1live/gocryptotrader.git
-  - git fetch custom
-  - git checkout develop
-  - cd -
-
-  # default install
   - go get -t -v ./...
-  
 
 script:
   - go test -v ./...
