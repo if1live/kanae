@@ -1,9 +1,12 @@
 package commands
 
 import (
-	"fmt"
+	"html/template"
+	"path"
+	"strings"
 
-	"github.com/if1live/kanae/histories"
+	"os"
+
 	"github.com/if1live/kanae/kanaelib"
 )
 
@@ -18,14 +21,33 @@ func NewDev(s kanaelib.Settings) *Dev {
 }
 
 func (cmd *Dev) Execute() error {
-	db, err := histories.NewDatabase(cmd.settings.DatabaseFileName)
-	if err != nil {
-		return nil
-	}
+	/*
+		db, err := histories.NewDatabase(cmd.settings.DatabaseFileName)
+		if err != nil {
+			return nil
+		}
 
-	view := db.MakeTradeView()
-	assets := view.UsedAssets("BTC")
-	fmt.Println("used assets :", assets)
+		view := db.MakeTradeView()
+		assets := view.UsedAssets("BTC")
+		fmt.Println("used assets :", assets)
+	*/
+
+	fmap := template.FuncMap{
+		"title": strings.Title,
+	}
+	ctx := map[string]string{
+		"Title":   "Hello world",
+		"Content": "Hi there",
+	}
+	basePath := kanaelib.GetExecutablePath()
+	fp := path.Join(basePath, "web", "templates", "sample.html")
+	tpl, err := template.New("sample.html").Funcs(fmap).ParseFiles(fp)
+	if err != nil {
+		panic(err)
+	}
+	if err := tpl.Execute(os.Stdout, ctx); err != nil {
+		panic(err)
+	}
 
 	//rows := db.GetLendings("BTC")
 	//fmt.Println(rows)

@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path"
+	"strings"
 
 	"errors"
 
@@ -34,10 +35,18 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 	w.Write(data)
 }
 
+func makeFuncMap() template.FuncMap {
+	fmap := template.FuncMap{
+		"title": strings.Title,
+	}
+	return fmap
+}
+
 func renderTemplate(w http.ResponseWriter, tplfile string, ctx interface{}) {
+	fmap := makeFuncMap()
 	basePath := kanaelib.GetExecutablePath()
 	fp := path.Join(basePath, "web", "templates", tplfile)
-	tpl, err := template.ParseFiles(fp)
+	tpl, err := template.New(tplfile).Funcs(fmap).ParseFiles(fp)
 	if err != nil {
 		renderErrorJSON(w, err, http.StatusInternalServerError)
 		return
@@ -53,6 +62,8 @@ func renderLayoutTemplate(w http.ResponseWriter, tplfile string, v interface{}) 
 	lp := path.Join(basePath, "web", "templates", "layout.html")
 	fp := path.Join(basePath, "web", "templates", tplfile)
 
+	//fmap := makeFuncMap()
+	//tpl, err := template.New(tplfile).Funcs(fmap).ParseFiles(lp, fp)
 	tpl, err := template.ParseFiles(lp, fp)
 	if err != nil {
 		renderErrorJSON(w, err, http.StatusInternalServerError)
