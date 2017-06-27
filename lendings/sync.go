@@ -24,7 +24,7 @@ func NewSync(db *gorm.DB, api *poloniex.Poloniex) *Sync {
 func (sync *Sync) Sync(start, end time.Time) (int, error) {
 	startTime := strconv.FormatInt(start.Unix(), 10)
 	endTime := strconv.FormatInt(end.Unix(), 10)
-	retval, err := GetLendingHistory(sync.api, startTime, endTime)
+	retval, err := sync.api.GetLendingHistory(startTime, endTime)
 	if err != nil {
 		return -1, err
 	}

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
 
 func convertPoloniexDate(val string) time.Time {
@@ -27,7 +28,7 @@ type Lending struct {
 	Close     time.Time `json:"close"`
 }
 
-func NewLendingRow(h PoloniexLendingHistory) Lending {
+func NewLendingRow(h poloniex.PoloniexLendingHistory) Lending {
 	return Lending{
 		LendingID: h.ID,
 		Currency:  h.Currency,
@@ -42,8 +43,8 @@ func NewLendingRow(h PoloniexLendingHistory) Lending {
 	}
 }
 
-func (r *Lending) MakeHistory() PoloniexLendingHistory {
-	return PoloniexLendingHistory{
+func (r *Lending) MakeHistory() poloniex.PoloniexLendingHistory {
+	return poloniex.PoloniexLendingHistory{
 		ID:       r.LendingID,
 		Currency: r.Currency,
 		Rate:     r.Rate,
