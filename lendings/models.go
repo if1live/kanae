@@ -57,3 +57,7 @@ func (r *Lending) MakeHistory() poloniex.PoloniexLendingHistory {
 		Close:    r.Close.Format(time.RFC3339),
 	}
 }
+
+func (r *Lending) FeeRate() float64 {
+	return float64(0.15)
+}

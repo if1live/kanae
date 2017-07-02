@@ -2,7 +2,6 @@ package exchanges
 
 import (
 	"sort"
-	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -26,12 +25,6 @@ func (q *View) Get(asset, currency string) []Exchange {
 func (v *View) All() []Exchange {
 	var rows []Exchange
 	v.db.Order("date desc").Find(&rows)
-	return rows
-}
-
-func (v *View) AllWithRange(start, end time.Time) []Exchange {
-	var rows []Exchange
-	v.db.Where("date between ? and ?", start, end).Order("date desc").Find(&rows)
 	return rows
 }
 

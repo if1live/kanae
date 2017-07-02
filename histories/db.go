@@ -32,6 +32,10 @@ func (d *Database) Close() {
 	d.db.Close()
 }
 
+func (d *Database) GetORM() *gorm.DB {
+	return d.db
+}
+
 func (d *Database) MakeExchangeSync(api *poloniex.Poloniex) *exchanges.Sync {
 	return exchanges.NewSync(d.db, api)
 }

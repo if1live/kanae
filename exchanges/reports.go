@@ -89,8 +89,7 @@ func NewReports(tickers *kanaelib.TickerCache, rows []Exchange) (closedList, ope
 	// find all asset-currency pairs
 	currencyPairSet := mapset.NewSet()
 	for _, e := range rows {
-		currencyPair := e.Asset + "_" + e.Currency
-		currencyPairSet.Add(currencyPair)
+		currencyPairSet.Add(e.CurrencyPair())
 	}
 
 	// sort asset-currency pairs

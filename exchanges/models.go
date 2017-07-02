@@ -3,6 +3,8 @@ package exchanges
 import (
 	"time"
 
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/thrasher-/gocryptotrader/exchanges/poloniex"
 )
@@ -122,4 +124,12 @@ func (r *Exchange) MyAmount() float64 {
 		return r.Amount
 	}
 	return -1
+}
+
+func (r *Exchange) DateStr() string {
+	return r.Date.Format("2006-01-02 15:04:05")
+}
+
+func (r *Exchange) CurrencyPair() string {
+	return fmt.Sprintf("%s_%s", r.Currency, r.Asset)
 }
