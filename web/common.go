@@ -92,6 +92,14 @@ func renderStatic(w http.ResponseWriter, r *http.Request, target string) {
 	http.ServeFile(w, r, cleanedFp)
 }
 
+func renderStaticHtml(w http.ResponseWriter, r *http.Request, target string) {
+	cleaned := path.Clean(target)
+	basePath := kanaelib.GetExecutablePath()
+	fp := path.Join(basePath, "web", "html", cleaned)
+	cleanedFp := path.Clean(fp)
+	http.ServeFile(w, r, cleanedFp)
+}
+
 func checkPostRequest(w http.ResponseWriter, r *http.Request) bool {
 	type Response struct {
 		Error string `json:"error"`

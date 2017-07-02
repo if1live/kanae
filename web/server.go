@@ -97,6 +97,11 @@ func (s *Server) Run() {
 	http.HandleFunc("/", handlerIndex)
 	http.HandleFunc("/static/", handlerStatic)
 
+	http.HandleFunc("/poloniex-trade-history", handlerPoloniexIndex)
+	http.HandleFunc("/js/", handlerPoloniexStaticJS)
+	http.HandleFunc("/css/", handlerPoloniexStaticCSS)
+	http.HandleFunc("/private.php", handlerPoloniexPrivateAPI)
+
 	http.HandleFunc("/exchange/", handlerExchangeDispatch)
 	http.HandleFunc("/lending/", handlerLending)
 	http.HandleFunc("/balance/", handlerBalance)
